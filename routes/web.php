@@ -134,9 +134,11 @@ Route::prefix('admin')
             Route::get('chat', [ChatController::class, 'index'])
                 ->name('chat.index');
             Route::post('chat', [ChatController::class, 'store'])
-                ->name('chat.store');
+                ->name('chat.store')
+                ->middleware('throttle:60,1');
             Route::post('chat/typing', [ChatController::class, 'typing'])
-                ->name('chat.typing');
+                ->name('chat.typing')
+                ->middleware('throttle:60,1');
         });
         Route::middleware('can:manage officials')->group(function () {
             Route::resource('officials', OfficialController::class)
