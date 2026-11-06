@@ -22,16 +22,14 @@ function AppWrapper({ children }: { children: ReactNode }) {
         let maxTimeout: ReturnType<typeof setTimeout>;
 
         const startListener = (event: any) => {
-            // Ignore prefetch requests (triggered by hovering over links)
+
             if (event.detail?.visit?.prefetch) {
                 return;
             }
 
-            // Show loader after 200ms (prevents flashing on instant loads)
             timeout = setTimeout(() => {
                 setIsLoading(true);
 
-                // Safety net: Force hide loader after 4 seconds
                 maxTimeout = setTimeout(() => {
                     setIsLoading(false);
                 }, 4000);
@@ -86,7 +84,7 @@ function AppWrapper({ children }: { children: ReactNode }) {
         <TooltipProvider delayDuration={0}>
             <GlobalLoader show={isLoading} />
             {children}
-            <Toaster
+            <Toaster 
                 position="top-center"
                 offset={80}
                 richColors
@@ -129,34 +127,34 @@ createInertiaApp({
         }
     },
     setup({ el, App, props }) {
-        // FIX: Store the root in window so Vite HMR doesn't try to recreate it
-        const win = window as any;
-        
-        if (!win.__inertia_root) {
-            win.__inertia_root = createRoot(el);
+
+        if (typeof window !== 'undefined') {
+            const win = window as any;
+            
+            if (!win.__inertia_root) {
+                win.__inertia_root = createRoot(el);
+            }
+            
+            win.__inertia_root.render(
+                <AppWrapper>
+                    <App {...props} />
+                </AppWrapper>,
+            );
         }
-        
-        win.__inertia_root.render(
-            <AppWrapper>
-                <App {...props} />
-            </AppWrapper>,
-        );
     },
-    progress: {
-        color: '#C9A227',
-        showSpinner: false,
-    },
+    progress: false,
 });
 
 initializeTheme();
 
-// FIX: Clean up on HMR dispose (only when full page reloads)
 if (import.meta.hot) {
     import.meta.hot.dispose(() => {
-        const win = window as any;
-        if (win.__inertia_root) {
-            win.__inertia_root.unmount();
-            win.__inertia_root = null;
+        if (typeof window !== 'undefined') {
+            const win = window as any;
+            if (win.__inertia_root) {
+                win.__inertia_root.unmount();
+                win.__inertia_root = null;
+            }
         }
     });
 }

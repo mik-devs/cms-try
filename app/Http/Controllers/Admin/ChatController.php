@@ -57,7 +57,7 @@ class ChatController extends Controller
         ]);
     }
 
-    public function store(StoreMessageRequest $request): RedirectResponse
+    public function store(StoreMessageRequest $request): JsonResponse
     {
         $attachmentPath = null;
         $attachmentName = null;
@@ -78,7 +78,7 @@ class ChatController extends Controller
 
         MessageSent::dispatch($message->loadMissing('sender'));
 
-        return back();
+        return response()->json(['success' => true]);
     }
 
     public function typing(Request $request): JsonResponse

@@ -33,8 +33,12 @@ return [
             'port' => env('REVERB_SERVER_PORT', 8080),
             'path' => env('REVERB_SERVER_PATH', ''),
             'hostname' => env('REVERB_HOST'),
-            'options' => [
-                'tls' => [],
+                        'options' => [
+                'tls' => [
+                    'local_cert' => 'C:\Users\ASUS\.config\herd\Config\valet\Certificates\kiblawan.test.crt',
+                    'local_pk' => 'C:\Users\ASUS\.config\herd\Config\valet\Certificates\kiblawan.test.key',
+                    'verify_peer' => false,
+                ],
             ],
             'max_request_size' => env('REVERB_MAX_REQUEST_SIZE', 10_000),
             'scaling' => [

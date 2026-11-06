@@ -130,11 +130,15 @@ export default function ChatIndex({
     );
 
     function sendTypingStatus(receiverId: number, isTypingNow: boolean): void {
-        axios
-            .post('/admin/chat/typing', {
-                receiver_id: receiverId,
-                is_typing: isTypingNow,
-            })
+        axios.post(chatTyping.url(), {
+            receiver_id: receiverId,
+            is_typing: isTypingNow,
+        }, {
+            headers: {
+                'X-Inertia': false,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        })
             .catch(() => {
                 // Silently ignore typing status errors so it doesn't break the UI
             });
@@ -215,7 +219,12 @@ export default function ChatIndex({
         channel.listen('MessageSent', (event: MessageSentBroadcast) => {
             if (activeUserId === event.sender_id) {
                 setMessages((current) => {
-                    if (current.some((item) => item.id === event.id)) {
+                    if (current.some((item) =>
+                        item.id === event.id ||
+                        (item.sender_id === event.sender_id &&
+                            item.receiver_id === event.receiver_id &&
+                            item.message === event.message),
+                    )) {
                         return current;
                     }
 
@@ -302,24 +311,53 @@ export default function ChatIndex({
         }
         sendTypingStatus(activeUserId, false);
 
-        router.post(
-            chatStore.url(),
-            {
-                receiver_id: activeUserId,
-                message: body,
-                attachment: attachment ?? undefined,
+        const tempId = Date.now();
+        const attachmentObj = attachment ?? null;
+
+        const newMessage: ChatMessage = {
+            id: tempId,
+            sender_id: currentUser?.id ?? 0,
+            receiver_id: activeUserId,
+            message: body || null,
+            attachment_path: null,
+            attachment_name: attachmentObj?.name ?? null,
+            attachment_url: null,
+            created_at: new Date().toISOString(),
+        };
+
+        setMessages((current) => {
+            if (current.some((item) => item.id === tempId)) {
+                return current;
+            }
+
+            return [...current, newMessage];
+        });
+
+        setMessage('');
+        clearAttachment();
+
+        const formData = new FormData();
+        formData.append('receiver_id', String(activeUserId));
+        formData.append('message', body);
+        if (attachmentObj) {
+            formData.append('attachment', attachmentObj);
+        }
+
+        axios.post(chatStore.url(), formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'X-Inertia': false,
+                'X-Requested-With': 'XMLHttpRequest',
             },
-            {
-                preserveScroll: true,
-                preserveState: true,
-                forceFormData: Boolean(attachment),
-                onSuccess: () => {
-                    setMessage('');
-                    clearAttachment();
-                },
-                onFinish: () => setIsSending(false),
-            },
-        );
+        })
+            .then(() => {
+                // Request succeeded - WebSocket event will handle adding the real message
+                // Optimistic message will be deduped by the WebSocket listener
+            })
+            .catch((error) => {
+                setMessages((current) => current.filter((item) => item.id !== tempId));
+            })
+            .finally(() => setIsSending(false));
     }
 
     function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>): void {
