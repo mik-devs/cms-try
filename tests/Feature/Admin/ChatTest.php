@@ -67,7 +67,8 @@ it('stores a message and broadcasts it to the receiver', function () {
             'receiver_id' => $receiver->id,
             'message' => 'Please review the new job posting.',
         ])
-        ->assertRedirect();
+        ->assertOk()
+        ->assertJson(['success' => true]);
 
     $this->assertDatabaseHas('messages', [
         'sender_id' => $sender->id,
@@ -109,7 +110,8 @@ it('stores a message with an attachment and broadcasts it', function () {
             'message' => 'Here is the document',
             'attachment' => UploadedFile::fake()->create('report.pdf', 1024, 'application/pdf'),
         ])
-        ->assertRedirect();
+        ->assertOk()
+        ->assertJson(['success' => true]);
 
     $message = Message::query()->firstOrFail();
     expect($message->attachment_name)->toBe('report.pdf')
