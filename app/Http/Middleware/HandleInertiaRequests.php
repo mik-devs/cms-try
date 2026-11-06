@@ -64,6 +64,22 @@ class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
             ],
+            'notifications' => [
+                'unreadCount' => $user ? $user->unreadNotifications()->count() : 0,
+                'list' => $user ? $user->unreadNotifications()
+                    ->latest()
+                    ->take(5)
+                    ->get() // <--- IDINAGDAG ANG get() PARA MAKUHA ANG COLLECTION
+                    ->map(function ($notification) {
+                        return [
+                            'id' => $notification->id,
+                            'sender_name' => $notification->data['sender_name'] ?? 'System',
+                            'message_preview' => $notification->data['message_preview'] ?? '',
+                            'url' => $notification->data['url'] ?? '#',
+                            'created_at' => $notification->created_at ? $notification->created_at->diffForHumans() : '',
+                        ];
+                    })->values()->toArray() : [],
+            ],
         ];
     }
 }

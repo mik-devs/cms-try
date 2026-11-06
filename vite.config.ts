@@ -30,6 +30,9 @@ export default defineConfig({
         }),
     ]),
     server: {
+        hmr: {
+            host: 'kiblawan.test',
+        },
         watch: {
             ignored: [
                 '**/.agents/**',

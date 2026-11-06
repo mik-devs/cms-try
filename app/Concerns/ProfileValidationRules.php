@@ -14,12 +14,18 @@ trait ProfileValidationRules
      *
      * @return array<string, array<int, Unique|ValidationRule|array<mixed>|string>>
      */
-    protected function profileRules(?int $userId = null): array
+    protected function profileRules(?int $userId = null, bool $withAvatar = false): array
     {
-        return [
+        $rules = [
             'name' => $this->nameRules(),
             'email' => $this->emailRules($userId),
         ];
+
+        if ($withAvatar) {
+            $rules['avatar'] = ['nullable', 'file', 'mimes:jpg,jpeg,png,webp', 'max:2048'];
+        }
+
+        return $rules;
     }
 
     /**

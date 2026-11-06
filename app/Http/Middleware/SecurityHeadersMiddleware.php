@@ -17,13 +17,27 @@ class SecurityHeadersMiddleware
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
         $response->headers->set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
 
+        $scriptSrc = "'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://embed.windy.com";
+        $styleSrc = "'self' 'unsafe-inline' https://fonts.googleapis.com";
+        $fontSrc = "'self' https://fonts.gstatic.com";
+        $connectSrc = "'self' ws://localhost:8080 wss://kiblawan.test:8080 wss://localhost:8080";
+
+        if (app()->isLocal()) {
+            $viteUrls = 'https://kiblawan.test:5173 https://vite.kiblawan.test:5173 wss://kiblawan.test:5173 wss://vite.kiblawan.test:5173';
+
+            $scriptSrc .= " {$viteUrls}";
+            $styleSrc .= " {$viteUrls}";
+            $fontSrc .= " {$viteUrls}";
+            $connectSrc .= " {$viteUrls}";
+        }
+
         $csp = implode('; ', [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://embed.windy.com",
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-            "font-src 'self' https://fonts.gstatic.com",
+            "script-src {$scriptSrc}",
+            "style-src {$styleSrc}",
+            "font-src {$fontSrc}",
             "img-src 'self' data: https:",
-            "connect-src 'self' ws://localhost:8080 wss://kiblawan.test:8080 wss://localhost:8080 https://api.windy.com",
+            "connect-src {$connectSrc}",
             "frame-src 'self' https://www.google.com https://maps.google.com https://embed.windy.com",
         ]);
 

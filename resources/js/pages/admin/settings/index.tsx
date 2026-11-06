@@ -47,10 +47,10 @@ export default function SettingsIndex({
 
     return (
         <>
-            <Head title="Settings" />
+            <Head title="Site Settings" />
             <div className="mx-auto flex w-full max-w-[1400px] flex-col gap-6 p-6 md:p-8">
                 <PageBanner
-                    title="Settings"
+                    title="Site Settings"
                     subtitle="Update the site identity and public contact details."
                 />
                 <form onSubmit={handleSubmit} className="space-y-6">

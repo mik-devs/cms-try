@@ -62,6 +62,7 @@ function AppWrapper({ children }: { children: ReactNode }) {
             else if (path.includes('/tourism')) pageTitle = 'Tourism';
             else if (path.includes('/achievements')) pageTitle = 'Achievements';
             else if (path.includes('/mayors-corner')) pageTitle = "Mayor's Corner";
+            else if (path.includes('/admin/settings')) pageTitle = 'Site Settings';
 
             if (pageTitle) {
                 document.title = `Municipality of Kiblawan | ${pageTitle}`;

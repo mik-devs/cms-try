@@ -399,6 +399,8 @@ export default function ChatIndex({
                         <div className="relative mt-3">
                             <Search className="pointer-events-none absolute top-1/2 left-3 size-3.5 -translate-y-1/2 text-ink-muted" />
                             <Input
+                                id="staff-search" // ✅ Idinagdag
+                                name="search"      // ✅ Idinagdag
                                 value={search}
                                 onChange={(event) =>
                                     setSearch(event.target.value)
@@ -705,6 +707,8 @@ export default function ChatIndex({
                                 )}
                                 <div className="flex items-end gap-2 rounded-2xl border border-line bg-(--color-bg-light) p-1.5 pr-2 transition-colors focus-within:border-primary/30 focus-within:ring-2 focus-within:ring-primary/10">
                                     <input
+                                        id="chat-attachment-input" // ✅ Idinagdag
+                                        name="attachment"           // ✅ Idinagdag
                                         ref={fileInputRef}
                                         type="file"
                                         onChange={(event) => {
@@ -729,6 +733,8 @@ export default function ChatIndex({
                                         <Paperclip className="size-4" />
                                     </button>
                                     <textarea
+                                        id="chat-message-input" // ✅ Idinagdag
+                                        name="message"          // ✅ Idinagdag
                                         ref={messageInputRef}
                                         value={message}
                                         onChange={(event) => {

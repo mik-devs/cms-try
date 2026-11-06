@@ -1,76 +1,51 @@
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import type { PropsWithChildren } from 'react';
-import Heading from '@/components/heading';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { useCurrentUrl } from '@/hooks/use-current-url';
-import { cn, toUrl } from '@/lib/utils';
-import { edit as editAppearance } from '@/routes/appearance';
+import { PageBanner } from '@/components/kiblawan/admin/page-banner';
+import { cn } from '@/lib/utils';
 import { edit } from '@/routes/profile';
 import { edit as editSecurity } from '@/routes/security';
-import type { NavItem } from '@/types';
-
-const sidebarNavItems: NavItem[] = [
-    {
-        title: 'Profile',
-        href: edit(),
-        icon: null,
-    },
-    {
-        title: 'Security',
-        href: editSecurity(),
-        icon: null,
-    },
-    {
-        title: 'Appearance',
-        href: editAppearance(),
-        icon: null,
-    },
-];
 
 export default function SettingsLayout({ children }: PropsWithChildren) {
-    const { isCurrentOrParentUrl } = useCurrentUrl();
+    // GINAMIT ANG usePage IMBES NA useLocation
+    const { url } = usePage(); 
+    
+    // PINALITAN ANG location.href NG url
+    const isProfilePage = url.startsWith('/settings/profile');
+    const isSecurityPage = url.startsWith('/settings/security');
 
     return (
-        <div className="px-4 py-6">
-            <Heading
-                title="Settings"
-                description="Manage your profile and account settings"
-            />
+        <div>
+            <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+                <PageBanner
+                    title="Account Settings"
+                    subtitle="Manage your personal profile, security, and preferences."
+                />
 
-            <div className="flex flex-col lg:flex-row lg:space-x-12">
-                <aside className="w-full max-w-xl lg:w-48">
-                    <nav
-                        className="flex flex-col space-y-1 space-x-0"
-                        aria-label="Settings"
-                    >
-                        {sidebarNavItems.map((item, index) => (
-                            <Button
-                                key={`${toUrl(item.href)}-${index}`}
-                                size="sm"
-                                variant="ghost"
-                                asChild
-                                className={cn('w-full justify-start', {
-                                    'bg-muted': isCurrentOrParentUrl(item.href),
-                                })}
-                            >
-                                <Link href={item.href}>
-                                    {item.icon && (
-                                        <item.icon className="h-4 w-4" />
-                                    )}
-                                    {item.title}
-                                </Link>
-                            </Button>
-                        ))}
-                    </nav>
-                </aside>
+                <div className="border-b pb-4">
+                    <div className="flex gap-2">
+                        <Link
+                            href={edit().url} // Ginamit ang Wayfinder route
+                            className={cn(
+                                'inline-flex items-center rounded-t-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors',
+                                isProfilePage ? 'bg-primary text-white' : ''
+                            )}
+                        >
+                            Profile
+                        </Link>
+                        <Link
+                            href={editSecurity().url} // Ginamit ang Wayfinder route
+                            className={cn(
+                                'inline-flex items-center rounded-t-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors',
+                                isSecurityPage ? 'bg-primary text-white' : ''
+                            )}
+                        >
+                            Security
+                        </Link>
+                    </div>
+                </div>
 
-                <Separator className="my-6 lg:hidden" />
-
-                <div className="flex-1 md:max-w-2xl">
-                    <section className="max-w-xl space-y-12">
-                        {children}
-                    </section>
+                <div className="w-full">
+                    {children}
                 </div>
             </div>
         </div>
