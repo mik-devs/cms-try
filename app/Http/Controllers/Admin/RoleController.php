@@ -150,9 +150,7 @@ class RoleController extends Controller
                 'manage officials' => 'Manage municipal officials, mayor messages, and staff profiles',
             ],
             'Transparency & Bids' => [
-                'manage transparency' => 'Manage transparency seal documents and public records',
-                'manage bids' => 'Manage bid invitations, bidding notices, and procurement records',
-                'manage reports' => 'Manage annual reports and public financial accountability records',
+                'manage transparency' => 'Manage transparency seal documents, bids, reports, and public records',
             ],
             'Careers & Recruitment' => [
                 'manage jobs' => 'Post vacancies, job openings, and qualifications',

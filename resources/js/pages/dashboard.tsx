@@ -206,7 +206,6 @@ export default function Dashboard({
             href: BidController.create.url(),
             icon: Gavel,
             canAccess:
-                hasPermission('manage bids') ||
                 hasPermission('manage transparency'),
         },
         {
@@ -214,7 +213,6 @@ export default function Dashboard({
             href: createVideo.url(),
             icon: Video,
             canAccess:
-                hasPermission('manage videos') ||
                 hasPermission('manage settings'),
         },
     ];

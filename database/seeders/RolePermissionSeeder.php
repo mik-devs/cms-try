@@ -16,8 +16,6 @@ class RolePermissionSeeder extends Seeder
             'manage settings',
             'manage news',
             'manage officials',
-            'manage bids',
-            'manage reports',
             'manage transparency',
             'manage tourism',
             'manage jobs',

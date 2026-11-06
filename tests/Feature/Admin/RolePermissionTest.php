@@ -12,13 +12,13 @@ it('seeds the configured roles, permissions, and department test users', functio
     $allPermissions = [
         'access internal chat',
         'manage achievements',
-        'manage bids',
+        
         'manage emergency',
         'manage hero',
         'manage jobs',
         'manage news',
         'manage officials',
-        'manage reports',
+        
         'manage services',
         'manage settings',
         'manage stats',
@@ -27,7 +27,7 @@ it('seeds the configured roles, permissions, and department test users', functio
         'manage users',
     ];
 
-    $this->assertDatabaseCount('permissions', 15);
+    $this->assertDatabaseCount('permissions', 13);
     $this->assertDatabaseCount('roles', 10);
 
     expect(Role::findByName('super_admin', 'web')->permissions->pluck('name')->sort()->values()->all())
@@ -141,7 +141,7 @@ it('allows super admin to view and edit role permissions and forbids non-super-a
         ->assertInertia(fn (Assert $page) => $page
             ->component('admin/roles/edit')
             ->where('role.name', 'editor')
-            ->has('allPermissions', 15));
+            ->has('allPermissions', 13));
 
     // Super admin updates permissions
     $this->actingAs($superAdmin)
@@ -201,7 +201,7 @@ it('allows super admin to create a custom role with permissions', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('admin/roles/create')
-            ->has('allPermissions', 15)
+            ->has('allPermissions', 13)
             ->has('permissionGroups'));
 
     $this->actingAs($superAdmin)
