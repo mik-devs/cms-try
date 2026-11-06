@@ -29,7 +29,7 @@ class StoreAchievementRequest extends FormRequest
             'facebook_url' => ['nullable', 'url', 'max:255'],
             'order' => ['required', 'integer', 'min:0'],
             'is_active' => ['boolean'],
-            'image' => ['required', 'image', 'max:2048'],
+            'image' => ['required', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
 

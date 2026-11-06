@@ -21,7 +21,7 @@ class StoreTourismRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'slug' => ['required', 'string', 'max:255', 'unique:tourism_spots,slug'],
             'description' => ['required', 'string'],
-            'image' => ['required', 'image', 'max:5120'],
+            'image' => ['required', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'images' => ['nullable', 'array'],
             'images.*' => ['image', 'max:5120'],
             'category' => ['required', 'string', 'max:255'],

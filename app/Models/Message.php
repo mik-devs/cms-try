@@ -16,6 +16,15 @@ class Message extends Model
     /**
      * @var list<string>
      */
+    protected $hidden = [
+        'password',
+        'remember_token',
+        'two_factor_secret',
+    ];
+
+    /**
+     * @var list<string>
+     */
     protected $fillable = [
         'sender_id',
         'receiver_id',

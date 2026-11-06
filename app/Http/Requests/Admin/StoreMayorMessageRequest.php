@@ -20,7 +20,7 @@ class StoreMayorMessageRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
-            'image' => ['required', 'image', 'max:5120'],
+            'image' => ['required', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'type' => ['required', 'in:photo_release,speech,achievement,gallery'],
             'published_at' => ['nullable', 'date'],
         ];

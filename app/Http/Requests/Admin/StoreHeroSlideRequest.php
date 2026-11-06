@@ -25,7 +25,7 @@ class StoreHeroSlideRequest extends FormRequest
             'title_emphasis' => ['nullable', 'string', 'max:255'],
             'cta_text' => ['nullable', 'string', 'max:255', 'required_with:cta_link'],
             'cta_link' => ['nullable', 'string', 'max:2048', 'required_with:cta_text', new CtaLinkRule],
-            'image' => ['required', 'image', 'max:5120'],
+            'image' => ['required', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'order' => ['required', 'integer'],
             'is_active' => ['boolean'],
         ];

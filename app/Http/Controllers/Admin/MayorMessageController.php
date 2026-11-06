@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreMayorMessageRequest;
 use App\Http\Requests\Admin\UpdateMayorMessageRequest;
 use App\Models\MayorMessage;
+use App\Actions\SanitizeHtmlAction;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -29,24 +30,26 @@ class MayorMessageController extends Controller
         return Inertia::render('admin/mayor-messages/create');
     }
 
-    public function store(StoreMayorMessageRequest $request): RedirectResponse
-    {
-        $validated = $request->validated();
+public function store(StoreMayorMessageRequest $request): RedirectResponse
+        {
+            $validated = $request->validated();
 
-        if ($request->hasFile('image')) {
-            $imagePath = Storage::disk('public')->putFile('mayor', $request->file('image'));
+            if ($request->hasFile('image')) {
+                $imagePath = Storage::disk('public')->putFile('mayor', $request->file('image'));
 
-            if ($imagePath === false) {
-                throw new RuntimeException('The mayor message image could not be stored.');
+                if ($imagePath === false) {
+                    throw new RuntimeException('The mayor message image could not be stored.');
+                }
+
+                $validated['image'] = $imagePath;
             }
 
-            $validated['image'] = $imagePath;
+            $validated['content'] = (new SanitizeHtmlAction())->handle($validated['content'] ?? '');
+
+            MayorMessage::query()->create($validated);
+
+            return to_route('admin.mayor-messages.index')->with('success', 'Mayor message created');
         }
-
-        MayorMessage::query()->create($validated);
-
-        return to_route('admin.mayor-messages.index')->with('success', 'Mayor message created');
-    }
 
     public function edit(MayorMessage $mayorMessage): Response
     {
@@ -73,6 +76,8 @@ class MayorMessageController extends Controller
         } else {
             unset($validated['image']);
         }
+
+        $validated['content'] = (new SanitizeHtmlAction())->handle($validated['content'] ?? '');
 
         $mayorMessage->update($validated);
 
