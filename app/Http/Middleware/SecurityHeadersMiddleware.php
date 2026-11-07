@@ -20,7 +20,11 @@ class SecurityHeadersMiddleware
         $scriptSrc = "'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com/recaptcha/ https://www.gstatic.com/recaptcha/ https://embed.windy.com";
         $styleSrc = "'self' 'unsafe-inline' https://fonts.googleapis.com";
         $fontSrc = "'self' https://fonts.gstatic.com";
-        $connectSrc = "'self' ws://localhost:8080 wss://kiblawan.test:8080 wss://localhost:8080";
+        
+        $appUrl = config('app.url'); 
+        $wsUrl = str_replace(['http://', 'https://'], ['ws://', 'wss://'], $appUrl);
+        
+        $connectSrc = "'self' ws://localhost:8080 wss://kiblawan.test:8080 wss://localhost:8080 {$appUrl} {$wsUrl}";
 
         if (app()->isLocal()) {
             $viteUrls = 'https://kiblawan.test:5173 https://vite.kiblawan.test:5173 wss://kiblawan.test:5173 wss://vite.kiblawan.test:5173';
