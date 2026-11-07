@@ -49,6 +49,16 @@
         <link rel="icon" type="image/png" href="/images/image.png">
         <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+        {{-- Runtime Reverb configuration injected from Laravel backend --}}
+        <script>
+            window.ReverbConfig = {
+                key: "{{ env('REVERB_APP_KEY') ?: config('reverb.apps.apps.0.key') }}",
+                host: "{{ env('REVERB_HOST') ?: config('reverb.apps.apps.0.options.host') }}",
+                port: "{{ env('REVERB_PORT') ?: config('reverb.apps.apps.0.options.port', 443) }}",
+                scheme: "{{ env('REVERB_SCHEME') ?: config('reverb.apps.apps.0.options.scheme', 'https') }}"
+            };
+        </script>
+
         @fonts
 
         @viteReactRefresh
