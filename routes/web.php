@@ -189,3 +189,7 @@ Route::prefix('admin')
     });
 
 require __DIR__.'/settings.php';
+
+if (file_exists(__DIR__.'/reverb-diagnostic.php')) {
+    require __DIR__.'/reverb-diagnostic.php';
+}
