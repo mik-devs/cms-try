@@ -216,7 +216,7 @@ export default function ChatIndex({
 
         const channel = echo.private(`chat.${currentUserId}`);
 
-        channel.listen('MessageSent', (event: MessageSentBroadcast) => {
+        channel.listen('.MessageSent', (event: MessageSentBroadcast) => {
             if (activeUserId === event.sender_id) {
                 setMessages((current) => {
                     if (current.some((item) =>
@@ -240,7 +240,7 @@ export default function ChatIndex({
             }));
         });
 
-        channel.listen('UserTyping', (e: { sender_id: number; is_typing: boolean }) => {
+        channel.listen('.UserTyping', (e: { sender_id: number; is_typing: boolean }) => {
             if (e.sender_id !== activeUserId) {
                 return;
             }
