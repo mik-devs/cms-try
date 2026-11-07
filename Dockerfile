@@ -32,7 +32,7 @@ COPY . /app
 
 # Install PHP and Node dependencies, build front-end assets
 RUN composer install --no-dev --optimize-autoloader
-RUN npm ci && npm run build
+RUN npm install && npm run build
 
 # Set directory permissions for Laravel
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
