@@ -60,7 +60,19 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                Mysql::ATTR_SSL_CA => (function () {
+                    $ca = env('MYSQL_ATTR_SSL_CA');
+                    if (! $ca) {
+                        return null;
+                    }
+                    if (file_exists($ca)) {
+                        return $ca;
+                    }
+                    if (file_exists(base_path('storage/certs/ca.pem'))) {
+                        return base_path('storage/certs/ca.pem');
+                    }
+                    return $ca;
+                })(),
             ]) : [],
         ],
 
@@ -80,7 +92,19 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                Mysql::ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                Mysql::ATTR_SSL_CA => (function () {
+                    $ca = env('MYSQL_ATTR_SSL_CA');
+                    if (! $ca) {
+                        return null;
+                    }
+                    if (file_exists($ca)) {
+                        return $ca;
+                    }
+                    if (file_exists(base_path('storage/certs/ca.pem'))) {
+                        return base_path('storage/certs/ca.pem');
+                    }
+                    return $ca;
+                })(),
             ]) : [],
         ],
 
