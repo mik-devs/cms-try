@@ -12,12 +12,22 @@ Route::get('/reverb-diagnostic', function () {
     $results['reverb_process_output'] = trim($ps->output());
 
     // 2. Check kung nakabukas ang port 8080
-    // (Gumamit tayo ng fallback para sa netstat at ss)
     $netstat = Process::run('netstat -tulpn 2>/dev/null | grep 8080 || ss -tulpn 2>/dev/null | grep 8080');
     $results['port_8080_listening'] = !empty(trim($netstat->output()));
     $results['port_8080_output'] = trim($netstat->output());
 
-    // 3. Check ang Environment Variables (Safe values lang)
+    // 3. Check ang PHP Extensions na kailangan ni Reverb
+    $results['php_extensions'] = [
+        'pcntl' => extension_loaded('pcntl'),
+        'sockets' => extension_loaded('sockets'),
+        'posix' => extension_loaded('posix'),
+    ];
+
+    // 4. Check Supervisor Status
+    $supervisorStatus = Process::run('sudo supervisorctl status 2>/dev/null || supervisorctl status 2>/dev/null');
+    $results['supervisor_status'] = trim($supervisorStatus->output());
+
+    // 5. Check ang Environment Variables
     $results['env_vars'] = [
         'REVERB_HOST' => env('REVERB_HOST'),
         'REVERB_PORT' => env('REVERB_PORT'),
@@ -27,12 +37,20 @@ Route::get('/reverb-diagnostic', function () {
         'APP_URL' => env('APP_URL'),
     ];
 
-    // 4. Check ang Nginx error logs (mahahanap natin dito kung bakit nag-fa-fail)
+    // 6. Check Nginx error logs
     $nginxLog = '/var/log/nginx/error.log';
     if (file_exists($nginxLog)) {
-        $results['nginx_last_errors'] = shell_exec('tail -n 15 ' . $nginxLog);
+        $results['nginx_last_errors'] = shell_exec('tail -n 10 ' . $nginxLog);
     } else {
         $results['nginx_last_errors'] = 'Nginx log file not found.';
+    }
+
+    // 7. Check Reverb logs mula sa supervisor
+    $reverbLog = '/var/log/supervisor/laravel-reverb.log';
+    if (file_exists($reverbLog)) {
+        $results['reverb_last_logs'] = shell_exec('tail -n 20 ' . $reverbLog);
+    } else {
+        $results['reverb_last_logs'] = 'Reverb log file not found.';
     }
 
     return response()->json($results, 200, [], JSON_PRETTY_PRINT);
