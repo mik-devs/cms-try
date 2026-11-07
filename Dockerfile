@@ -32,6 +32,9 @@ COPY . /app
 
 # Install PHP and Node dependencies, build front-end assets
 RUN composer install --no-dev --optimize-autoloader
+
+RUN npm install -g npm@latest
+
 RUN npm install && npm run build
 
 # Set directory permissions for Laravel
