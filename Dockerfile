@@ -1,7 +1,7 @@
 # Base image: PHP 8.5 CLI
 FROM php:8.5-cli
 
-# Install system dependencies (including supervisor and nginx)
+# 1. Install system dependencies (TINANGGAL natin ang nodejs at npm dito)
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,10 +10,13 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    nodejs \
-    npm \
     supervisor \
     nginx
+
+# 2. Install modern Node.js (v22 LTS) via NodeSource
+# Ito ang magbibigay sa'yo ng bagong Node at npm na compatible sa Vite
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
+    apt-get install -y nodejs
 
 # Clear apt cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -33,8 +36,7 @@ COPY . /app
 # Install PHP and Node dependencies, build front-end assets
 RUN composer install --no-dev --optimize-autoloader
 
-RUN npm install -g npm@latest
-
+# 3. I-install at i-build (Tinanggal natin yung 'npm install -g npm@latest' kasi bago na siya)
 RUN npm install && npm run build
 
 # Set directory permissions for Laravel
@@ -51,7 +53,7 @@ COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && \
     chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Expose Render standard port
+# Expose Render default port
 EXPOSE 10000
 
 # Entrypoint updates Nginx with $PORT and passes control to Supervisor
