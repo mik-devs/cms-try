@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Barangay extends Model
 {
@@ -25,5 +26,13 @@ class Barangay extends Model
             'longitude' => 'decimal:7',
             'order' => 'integer',
         ];
+    }
+
+    /**
+     * @return HasMany<TourismSpot, $this>
+     */
+    public function tourismSpots(): HasMany
+    {
+        return $this->hasMany(TourismSpot::class);
     }
 }

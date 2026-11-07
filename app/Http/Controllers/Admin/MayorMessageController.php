@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Actions\SanitizeHtmlAction;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreMayorMessageRequest;
 use App\Http\Requests\Admin\UpdateMayorMessageRequest;
 use App\Models\MayorMessage;
-use App\Actions\SanitizeHtmlAction;
+use App\Models\MessageType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
@@ -19,6 +20,7 @@ class MayorMessageController extends Controller
     {
         return Inertia::render('admin/mayor-messages/index', [
             'mayorMessages' => MayorMessage::query()
+                ->with('messageType')
                 ->orderByDesc('published_at')
                 ->orderByDesc('id')
                 ->paginate(10),
@@ -27,34 +29,39 @@ class MayorMessageController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('admin/mayor-messages/create');
+        return Inertia::render('admin/mayor-messages/create', [
+            'messageTypes' => MessageType::query()->orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
-public function store(StoreMayorMessageRequest $request): RedirectResponse
-        {
-            $validated = $request->validated();
+    public function store(StoreMayorMessageRequest $request): RedirectResponse
+    {
+        $validated = $request->validated();
 
-            if ($request->hasFile('image')) {
-                $imagePath = Storage::disk('public')->putFile('mayor', $request->file('image'));
+        if ($request->hasFile('image')) {
+            $imagePath = Storage::disk('public')->putFile('mayor', $request->file('image'));
 
-                if ($imagePath === false) {
-                    throw new RuntimeException('The mayor message image could not be stored.');
-                }
-
-                $validated['image'] = $imagePath;
+            if ($imagePath === false) {
+                throw new RuntimeException('The mayor message image could not be stored.');
             }
 
-            $validated['content'] = (new SanitizeHtmlAction())->handle($validated['content'] ?? '');
-
-            MayorMessage::query()->create($validated);
-
-            return to_route('admin.mayor-messages.index')->with('success', 'Mayor message created');
+            $validated['image'] = $imagePath;
         }
+
+        $validated['content'] = (new SanitizeHtmlAction)->handle($validated['content'] ?? '');
+
+        MayorMessage::query()->create($validated);
+
+        return to_route('admin.mayor-messages.index')->with('success', 'Mayor message created');
+    }
 
     public function edit(MayorMessage $mayorMessage): Response
     {
+        $mayorMessage->load('messageType');
+
         return Inertia::render('admin/mayor-messages/edit', [
             'mayorMessage' => $mayorMessage,
+            'messageTypes' => MessageType::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
@@ -77,7 +84,7 @@ public function store(StoreMayorMessageRequest $request): RedirectResponse
             unset($validated['image']);
         }
 
-        $validated['content'] = (new SanitizeHtmlAction())->handle($validated['content'] ?? '');
+        $validated['content'] = (new SanitizeHtmlAction)->handle($validated['content'] ?? '');
 
         $mayorMessage->update($validated);
 

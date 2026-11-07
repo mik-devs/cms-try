@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\News;
+use App\Models\NewsCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -50,7 +51,9 @@ class NewsSeeder extends Seeder
                     'excerpt' => $item['excerpt'],
                     'content' => $item['content'],
                     'image' => null,
-                    'category' => 'news',
+                    'news_category_id' => NewsCategory::query()
+                        ->where('name', 'news')
+                        ->value('id'),
                     'is_featured' => $item['is_featured'],
                     'status' => 'published',
                     'published_at' => Carbon::parse($item['published_at']),

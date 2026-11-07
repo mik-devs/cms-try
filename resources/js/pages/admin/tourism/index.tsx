@@ -27,7 +27,8 @@ const columns: ResourceTableColumn<TourismSpot>[] = [
         ),
     },
     { label: 'Name', render: (spot) => spot.name },
-    { label: 'Category', render: (spot) => spot.category ?? '—' },
+    { label: 'Category', render: (spot) => spot.category ?? '�?"' },
+    { label: 'Barangay', render: (spot) => spot.barangay?.name ?? '�?"' },
     { label: 'Order', render: (spot) => spot.order },
     {
         label: 'Status',

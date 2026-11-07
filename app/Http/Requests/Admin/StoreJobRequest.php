@@ -27,7 +27,7 @@ class StoreJobRequest extends FormRequest
             'description' => ['required', 'string'],
             'department' => ['required', 'string', 'max:255'],
             'deadline' => ['nullable', 'date'],
-            'status' => ['required', 'in:open,closed'],
+            'job_status_id' => ['required', 'integer', 'exists:job_statuses,id'],
         ];
     }
 }

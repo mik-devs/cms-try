@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasImageUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class MayorMessage extends Model
 {
@@ -14,7 +15,7 @@ class MayorMessage extends Model
         'title',
         'content',
         'image',
-        'type',
+        'message_type_id',
         'published_at',
     ];
 
@@ -28,19 +29,27 @@ class MayorMessage extends Model
     }
 
     /**
-     * @param Builder<static> $query
+     * @param  Builder<static>  $query
      * @return static
      */
     /**
- * @param \Illuminate\Database\Eloquent\Builder<static> $query
- * @return \Illuminate\Database\Eloquent\Builder<static>
- */
-public function scopePublished(Builder $query): Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopePublished(Builder $query): Builder
     {
         return $query
             ->where(function (Builder $query): void {
                 $query->whereNull('published_at')
                     ->orWhere('published_at', '<=', now());
             });
+    }
+
+    /**
+     * @return BelongsTo<MessageType, $this>
+     */
+    public function messageType(): BelongsTo
+    {
+        return $this->belongsTo(MessageType::class);
     }
 }

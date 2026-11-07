@@ -11,6 +11,7 @@ class TourismController extends Controller
     public function index(): Response
     {
         $spots = TourismSpot::query()
+            ->with('barangay')
             ->where('is_active', true)
             ->orderBy('order')
             ->get();
@@ -23,7 +24,7 @@ class TourismController extends Controller
     public function show(string $slug): Response
     {
         $spot = TourismSpot::query()
-            ->with('images')
+            ->with('images', 'barangay')
             ->where('slug', $slug)
             ->where('is_active', true)
             ->firstOrFail();

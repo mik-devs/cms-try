@@ -75,6 +75,7 @@ class GovernmentController extends Controller
     private function groupedOfficials(): array
     {
         $officials = Official::query()
+            ->with('committees')
             ->orderBy('order')
             ->orderBy('id')
             ->get();

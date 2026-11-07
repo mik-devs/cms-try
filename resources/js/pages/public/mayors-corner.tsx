@@ -12,7 +12,7 @@ const tabs = ['Photo Release', 'Speeches', 'Achievements', 'Gallery'] as const;
 
 type MayorTab = (typeof tabs)[number];
 
-const messageTypes: Record<MayorTab, MayorMessage['type']> = {
+const messageTypes: Record<MayorTab, string> = {
     'Photo Release': 'photo_release',
     Speeches: 'speech',
     Achievements: 'achievement',
@@ -34,7 +34,7 @@ export default function MayorsCorner({
     const [activeTab, setActiveTab] = useState<MayorTab>('Photo Release');
     const activeType = messageTypes[activeTab];
     const visibleMessages = messages.filter(
-        (message) => message.type === activeType,
+        (message) => message.message_type?.name === activeType,
     );
     const isGalleryTab = activeTab === 'Gallery';
 

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class JobPosting extends Model
 {
@@ -13,7 +14,7 @@ class JobPosting extends Model
         'description',
         'department',
         'deadline',
-        'status',
+        'job_status_id',
     ];
 
     protected function casts(): array
@@ -21,5 +22,13 @@ class JobPosting extends Model
         return [
             'deadline' => 'date',
         ];
+    }
+
+    /**
+     * @return BelongsTo<JobStatus, $this>
+     */
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(JobStatus::class, 'job_status_id');
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Models\Achievement;
 use App\Models\JobPosting;
+use App\Models\JobStatus;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -41,7 +42,7 @@ it('renders each content module management page', function () {
         'title' => 'Planning Officer',
         'description' => 'Support municipal planning',
         'department' => 'Planning',
-        'status' => 'open',
+        'job_status_id' => JobStatus::query()->where('name', 'open')->value('id'),
     ]);
 
     $this->get(route('admin.services.index'))
@@ -180,7 +181,7 @@ it('creates updates and deletes job postings reflected on the home page', functi
         'description' => 'Support municipal planning',
         'department' => 'Planning',
         'deadline' => '2026-12-01',
-        'status' => 'open',
+        'job_status_id' => JobStatus::query()->where('name', 'open')->value('id'),
     ])->assertRedirect(route('admin.jobs.index'));
 
     $job = JobPosting::query()->firstOrFail();
@@ -191,12 +192,12 @@ it('creates updates and deletes job postings reflected on the home page', functi
         'description' => 'Lead municipal planning support',
         'department' => 'Planning',
         'deadline' => null,
-        'status' => 'open',
+        'job_status_id' => JobStatus::query()->where('name', 'open')->value('id'),
     ])->assertRedirect(route('admin.jobs.index'));
 
     $job->refresh();
     expect($job->title)->toBe('Senior Planning Officer');
-    expect($job->status)->toBe('open');
+    expect($job->status?->name)->toBe('open');
 
     $this->get(route('home'))
         ->assertOk()
@@ -237,9 +238,9 @@ it('rejects invalid service order and job status values', function (
             'title' => 'Invalid job',
             'description' => 'Details',
             'department' => 'Planning',
-            'status' => 'pending',
+            'job_status_id' => 999999,
         ],
-        'status',
-        'The selected status is invalid.',
+        'job_status_id',
+        'The selected job status id is invalid.',
     ],
 ]);

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\HasImageUrl;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -20,6 +21,7 @@ class TourismSpot extends Model
         'description',
         'image',
         'category',
+        'barangay_id',
         'latitude',
         'longitude',
         'order',
@@ -39,8 +41,8 @@ class TourismSpot extends Model
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopeActive(Builder $query): Builder
     {
@@ -48,7 +50,15 @@ class TourismSpot extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany<\App\Models\TourismSpotImage, $this>
+     * @return BelongsTo<Barangay, $this>
+     */
+    public function barangay(): BelongsTo
+    {
+        return $this->belongsTo(Barangay::class);
+    }
+
+    /**
+     * @return HasMany<TourismSpotImage, $this>
      */
     public function images(): HasMany
     {

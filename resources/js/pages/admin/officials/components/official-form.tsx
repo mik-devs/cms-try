@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { useForm, type InertiaForm } from '@inertiajs/react';
-import type { Official } from '@/types';
+import type { Committee, Official } from '@/types';
 import InputError from '@/components/input-error';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { FormWrapper } from '@/components/kiblawan/ui/form-wrapper';
@@ -10,7 +11,7 @@ import { ImageUploader } from '@/components/kiblawan/ui/image-uploader';
 export interface OfficialFormData {
     name: string;
     position: string;
-    committee: string;
+    committees: number[];
     facebook_url: string;
     instagram_url: string;
     photo: File | null;
@@ -19,6 +20,7 @@ export interface OfficialFormData {
 
 interface OfficialFormProps {
     initialValues?: Official;
+    committees?: Committee[];
     onSubmit: (form: InertiaForm<OfficialFormData>) => void;
     submitLabel: string;
     title?: string;
@@ -27,6 +29,7 @@ interface OfficialFormProps {
 
 export default function OfficialForm({
     initialValues,
+    committees = [],
     onSubmit,
     submitLabel,
     title = submitLabel,
@@ -35,7 +38,8 @@ export default function OfficialForm({
     const form = useForm<OfficialFormData>({
         name: initialValues?.name ?? '',
         position: initialValues?.position ?? '',
-        committee: initialValues?.committee ?? '',
+        committees:
+            initialValues?.committees?.map((committee) => committee.id) ?? [],
         facebook_url: initialValues?.facebook_url ?? '',
         instagram_url: initialValues?.instagram_url ?? '',
         photo: null,
@@ -88,17 +92,54 @@ export default function OfficialForm({
                     <InputError message={form.errors.position} />
                 </div>
                 <div className="grid gap-2">
-                    <Label htmlFor="committee">Committee Chairmanship</Label>
-                    <Input
-                        id="committee"
-                        placeholder="e.g., Committee on Finance"
-                        value={form.data.committee}
-                        onChange={(event) =>
-                            form.setData('committee', event.target.value)
-                        }
-                        aria-invalid={Boolean(form.errors.committee)}
-                    />
-                    <InputError message={form.errors.committee} />
+                    <Label>Committees</Label>
+                    <div className="grid gap-2 rounded-md border border-input p-3 sm:grid-cols-2">
+                        {committees.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">
+                                No committees available.
+                            </p>
+                        ) : (
+                            committees.map((committee) => {
+                                const checked = form.data.committees.includes(
+                                    committee.id,
+                                );
+
+                                return (
+                                    <div
+                                        key={committee.id}
+                                        className="flex items-center gap-2"
+                                    >
+                                        <Checkbox
+                                            id={`committee-${committee.id}`}
+                                            checked={checked}
+                                            onCheckedChange={(value) =>
+                                                form.setData(
+                                                    'committees',
+                                                    value === true
+                                                        ? [
+                                                              ...form.data
+                                                                  .committees,
+                                                              committee.id,
+                                                          ]
+                                                        : form.data.committees.filter(
+                                                              (id) =>
+                                                                  id !==
+                                                                  committee.id,
+                                                          ),
+                                                )
+                                            }
+                                        />
+                                        <Label
+                                            htmlFor={`committee-${committee.id}`}
+                                        >
+                                            {committee.name}
+                                        </Label>
+                                    </div>
+                                );
+                            })
+                        )}
+                    </div>
+                    <InputError message={form.errors.committees} />
                 </div>
                 <div className="grid gap-2">
                     <Label htmlFor="facebook_url">Facebook URL</Label>

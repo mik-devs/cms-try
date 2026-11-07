@@ -3,6 +3,7 @@
 use App\Models\Achievement;
 use App\Models\Barangay;
 use App\Models\CitizenCharter;
+use App\Models\Committee;
 use App\Models\News;
 use App\Models\Office;
 use App\Models\Official;
@@ -94,12 +95,17 @@ it('shows only the vice mayor and legislative members on the Sangguniang Bayan p
         'order' => 2,
     ]);
 
-    Official::query()->create([
+    $councilMember = Official::query()->create([
         'name' => 'Council Member',
         'position' => 'Sangguniang Bayan Member',
-        'committee' => 'Committee on Education',
         'order' => 3,
     ]);
+
+    $committee = Committee::query()->create([
+        'name' => 'Committee on Education',
+    ]);
+
+    $councilMember->committees()->attach($committee);
 
     $this->get(route('government.sangguniang-bayan'))
         ->assertOk()
@@ -108,7 +114,7 @@ it('shows only the vice mayor and legislative members on the Sangguniang Bayan p
             ->where('viceMayor.name', 'Presiding Vice Mayor')
             ->has('members', 1)
             ->where('members.0.name', 'Council Member')
-            ->where('members.0.committee', 'Committee on Education')
+            ->where('members.0.committees.0.name', 'Committee on Education')
             ->missing('mayor'));
 });
 

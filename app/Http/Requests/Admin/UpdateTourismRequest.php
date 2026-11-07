@@ -38,6 +38,7 @@ class UpdateTourismRequest extends FormRequest
             'remove_images' => ['nullable', 'array'],
             'remove_images.*' => ['integer', 'exists:tourism_spot_images,id'],
             'category' => ['required', 'string', 'max:255'],
+            'barangay_id' => ['nullable', 'integer', 'exists:barangays,id'],
             'latitude' => ['nullable', 'numeric', 'between:-90,90'],
             'longitude' => ['nullable', 'numeric', 'between:-180,180'],
             'order' => ['required', 'integer', 'min:0'],

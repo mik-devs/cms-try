@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useForm, type InertiaForm } from '@inertiajs/react';
-import type { News } from '@/types';
+import type { News, NewsCategory } from '@/types';
 import InputError from '@/components/input-error';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -21,7 +21,7 @@ export interface NewsFormData {
     title: string;
     excerpt: string;
     content: string;
-    category: 'news' | 'announcement';
+    news_category_id: number | null;
     status: 'draft' | 'published';
     published_at: string;
     is_featured: boolean;
@@ -30,6 +30,7 @@ export interface NewsFormData {
 
 interface NewsFormProps {
     initialValues?: News;
+    newsCategories?: NewsCategory[];
     onSubmit: (form: InertiaForm<NewsFormData>) => void;
     submitLabel: string;
     title?: string;
@@ -38,6 +39,7 @@ interface NewsFormProps {
 
 export default function NewsForm({
     initialValues,
+    newsCategories = [],
     onSubmit,
     submitLabel,
     title = submitLabel,
@@ -47,7 +49,7 @@ export default function NewsForm({
         title: initialValues?.title ?? '',
         excerpt: initialValues?.excerpt ?? '',
         content: initialValues?.content ?? '',
-        category: initialValues?.category ?? 'news',
+        news_category_id: initialValues?.news_category_id ?? null,
         status: initialValues?.status ?? 'draft',
         published_at: initialValues?.published_at?.slice(0, 10) ?? '',
         is_featured: initialValues?.is_featured ?? false,
@@ -86,31 +88,37 @@ export default function NewsForm({
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="category">
+                    <Label htmlFor="news_category_id">
                         Category <span className="text-red-500">*</span>
                     </Label>
                     <Select
-                        value={form.data.category}
-                        onValueChange={(value) => {
-                            if (value === 'news' || value === 'announcement') {
-                                form.setData('category', value);
-                            }
-                        }}
+                        value={
+                            form.data.news_category_id === null
+                                ? ''
+                                : String(form.data.news_category_id)
+                        }
+                        onValueChange={(value) =>
+                            form.setData('news_category_id', Number(value))
+                        }
                     >
                         <SelectTrigger
-                            id="category"
-                            aria-invalid={Boolean(form.errors.category)}
+                            id="news_category_id"
+                            aria-invalid={Boolean(form.errors.news_category_id)}
                         >
-                            <SelectValue />
+                            <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="news">News</SelectItem>
-                            <SelectItem value="announcement">
-                                Announcement
-                            </SelectItem>
+                            {newsCategories.map((category) => (
+                                <SelectItem
+                                    key={category.id}
+                                    value={String(category.id)}
+                                >
+                                    {category.name}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
-                    <InputError message={form.errors.category} />
+                    <InputError message={form.errors.news_category_id} />
                 </div>
 
                 <div className="grid gap-2">

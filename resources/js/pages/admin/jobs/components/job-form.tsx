@@ -1,6 +1,6 @@
 import { useForm, type InertiaForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
-import type { JobPosting } from '@/types';
+import type { JobPosting, JobStatus } from '@/types';
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,11 +20,12 @@ export interface JobFormData {
     description: string;
     department: string;
     deadline: string;
-    status: 'open' | 'closed';
+    job_status_id: number | null;
 }
 
 interface JobFormProps {
     initialValues?: JobPosting;
+    jobStatuses?: JobStatus[];
     onSubmit: (form: InertiaForm<JobFormData>) => void;
     submitLabel: string;
     title?: string;
@@ -33,6 +34,7 @@ interface JobFormProps {
 
 export default function JobForm({
     initialValues,
+    jobStatuses = [],
     onSubmit,
     submitLabel,
     title = submitLabel,
@@ -43,7 +45,7 @@ export default function JobForm({
         description: initialValues?.description ?? '',
         department: initialValues?.department ?? '',
         deadline: initialValues?.deadline?.slice(0, 10) ?? '',
-        status: initialValues?.status ?? 'open',
+        job_status_id: initialValues?.job_status_id ?? null,
     });
 
     function handleSubmit(event: FormEvent<HTMLFormElement>): void {
@@ -127,29 +129,37 @@ export default function JobForm({
                     <InputError message={form.errors.deadline} />
                 </div>
                 <div className="grid gap-2 sm:max-w-xs">
-                    <Label htmlFor="status">
+                    <Label htmlFor="job_status_id">
                         Status <span className="text-red-500">*</span>
                     </Label>
                     <Select
-                        value={form.data.status}
-                        onValueChange={(value) => {
-                            if (value === 'open' || value === 'closed') {
-                                form.setData('status', value);
-                            }
-                        }}
+                        value={
+                            form.data.job_status_id === null
+                                ? ''
+                                : String(form.data.job_status_id)
+                        }
+                        onValueChange={(value) =>
+                            form.setData('job_status_id', Number(value))
+                        }
                     >
                         <SelectTrigger
-                            id="status"
-                            aria-invalid={Boolean(form.errors.status)}
+                            id="job_status_id"
+                            aria-invalid={Boolean(form.errors.job_status_id)}
                         >
-                            <SelectValue />
+                            <SelectValue placeholder="Select a status" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="open">Open</SelectItem>
-                            <SelectItem value="closed">Closed</SelectItem>
+                            {jobStatuses.map((status) => (
+                                <SelectItem
+                                    key={status.id}
+                                    value={String(status.id)}
+                                >
+                                    {status.name}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
-                    <InputError message={form.errors.status} />
+                    <InputError message={form.errors.job_status_id} />
                 </div>
             </div>
         </FormWrapper>

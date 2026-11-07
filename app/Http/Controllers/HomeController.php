@@ -24,14 +24,16 @@ class HomeController extends Controller
     public function index(): Response
     {
         $latestPhotoRelease = MayorMessage::query()
+            ->with('messageType')
             ->published()
-            ->where('type', 'photo_release')
+            ->whereRelation('messageType', 'name', 'photo_release')
             ->orderByDesc('published_at')
             ->orderByDesc('id')
             ->first();
 
         $latestMayorMessage = $latestPhotoRelease
             ?? MayorMessage::query()
+                ->with('messageType')
                 ->published()
                 ->orderByDesc('published_at')
                 ->orderByDesc('id')
@@ -72,7 +74,7 @@ class HomeController extends Controller
                 ->orderBy('order')
                 ->get(),
             'latestJobs' => JobPosting::query()
-                ->where('status', 'open')
+                ->whereRelation('status', 'name', 'open')
                 ->orderByDesc('created_at')
                 ->take(3)
                 ->get(),

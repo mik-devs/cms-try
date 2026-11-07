@@ -1,12 +1,14 @@
 import { Head } from '@inertiajs/react';
 import MayorMessageController from '@/actions/App/Http/Controllers/Admin/MayorMessageController';
 import MayorMessageForm from '@/pages/admin/mayor-messages/components/mayor-message-form';
-import type { MayorMessage } from '@/types';
+import type { MayorMessage, MessageType } from '@/types';
 
 export default function EditMayorMessage({
     mayorMessage,
+    messageTypes,
 }: {
     mayorMessage: MayorMessage;
+    messageTypes: MessageType[];
 }) {
     return (
         <>
@@ -15,6 +17,7 @@ export default function EditMayorMessage({
                 title="Edit Mayor Message"
                 backHref={MayorMessageController.index.url()}
                 initialValues={mayorMessage}
+                messageTypes={messageTypes}
                 onSubmit={(form) =>
                     form.put(
                         MayorMessageController.update.url(mayorMessage.id),

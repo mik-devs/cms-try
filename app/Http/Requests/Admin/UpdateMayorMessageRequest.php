@@ -21,7 +21,7 @@ class UpdateMayorMessageRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
             'image' => ['nullable', 'image', 'max:5120'],
-            'type' => ['required', 'in:photo_release,speech,achievement,gallery'],
+            'message_type_id' => ['required', 'integer', 'exists:message_types,id'],
             'published_at' => ['nullable', 'date'],
         ];
     }

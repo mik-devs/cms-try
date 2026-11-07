@@ -133,16 +133,29 @@ export default function SangguniangBayan({
                                                 </a>
                                             )}
                                         </div>
-                                        {member.committee && (
-                                            <>
-                                                <p className="m-0 text-sm font-semibold text-primary">
-                                                    Committee Chairmanship
-                                                </p>
-                                                <p className="mt-1 mb-0 text-sm text-ink-muted">
-                                                    {member.committee}
-                                                </p>
-                                            </>
-                                        )}
+                                        {member.committees &&
+                                            member.committees.length > 0 && (
+                                                <>
+                                                    <p className="m-0 text-sm font-semibold text-primary">
+                                                        Committees
+                                                    </p>
+                                                    <ul className="mt-1 mb-0 list-inside list-disc text-sm text-ink-muted">
+                                                        {member.committees.map(
+                                                            (committee) => (
+                                                                <li
+                                                                    key={
+                                                                        committee.id
+                                                                    }
+                                                                >
+                                                                    {
+                                                                        committee.name
+                                                                    }
+                                                                </li>
+                                                            ),
+                                                        )}
+                                                    </ul>
+                                                </>
+                                            )}
                                     </div>
                                 </article>
                             ))}

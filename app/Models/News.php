@@ -18,7 +18,7 @@ class News extends Model
         'excerpt',
         'content',
         'image',
-        'category',
+        'news_category_id',
         'is_featured',
         'status',
         'published_at',
@@ -45,8 +45,8 @@ class News extends Model
     }
 
     /**
-     * @param \Illuminate\Database\Eloquent\Builder<static> $query
-     * @return \Illuminate\Database\Eloquent\Builder<static>
+     * @param  Builder<static>  $query
+     * @return Builder<static>
      */
     public function scopePublished(Builder $query): Builder
     {
@@ -59,11 +59,19 @@ class News extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\User, $this>
+     * @return BelongsTo<User, $this>
      */
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    /**
+     * @return BelongsTo<NewsCategory, $this>
+     */
+    public function newsCategory(): BelongsTo
+    {
+        return $this->belongsTo(NewsCategory::class);
     }
 
     protected static function uniqueSlug(string $title, ?int $ignoreId = null): string

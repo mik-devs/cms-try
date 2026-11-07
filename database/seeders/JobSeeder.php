@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\JobPosting;
+use App\Models\JobStatus;
 use Illuminate\Database\Seeder;
 
 class JobSeeder extends Seeder
@@ -20,7 +21,9 @@ class JobSeeder extends Seeder
                 ['title' => $job['title']],
                 $job + [
                     'description' => 'Qualified applicants may submit their application to the Human Resource Management Office of the Municipality of Kiblawan.',
-                    'status' => 'open',
+                    'job_status_id' => JobStatus::query()
+                        ->where('name', 'open')
+                        ->value('id'),
                 ],
             );
         }

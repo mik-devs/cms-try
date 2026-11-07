@@ -6,6 +6,13 @@ import InputError from '@/components/input-error';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { FormWrapper } from '@/components/kiblawan/ui/form-wrapper';
 import { ImageUploader } from '@/components/kiblawan/ui/image-uploader';
 import { MultiImageUploader } from '@/components/kiblawan/ui/multi-image-uploader';
@@ -15,6 +22,7 @@ export interface TourismFormData {
     slug: string;
     description: string;
     category: string;
+    barangay_id: number | null;
     latitude: string;
     longitude: string;
     image: File | null;
@@ -25,6 +33,7 @@ export interface TourismFormData {
 
 interface TourismFormProps {
     initialValues?: TourismSpot;
+    barangays?: { id: number; name: string }[];
     onSubmit: (form: InertiaForm<TourismFormData>) => void;
     submitLabel: string;
     title?: string;
@@ -33,6 +42,7 @@ interface TourismFormProps {
 
 export default function TourismForm({
     initialValues,
+    barangays = [],
     onSubmit,
     submitLabel,
     title = submitLabel,
@@ -43,6 +53,7 @@ export default function TourismForm({
         slug: initialValues?.slug ?? '',
         description: initialValues?.description ?? '',
         category: initialValues?.category ?? '',
+        barangay_id: initialValues?.barangay_id ?? null,
         latitude: initialValues?.latitude ?? '',
         longitude: initialValues?.longitude ?? '',
         image: null,
@@ -134,6 +145,41 @@ export default function TourismForm({
                         aria-invalid={Boolean(form.errors.category)}
                     />
                     <InputError message={form.errors.category} />
+                </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="barangay_id">Barangay</Label>
+                    <Select
+                        value={
+                            form.data.barangay_id === null
+                                ? 'none'
+                                : String(form.data.barangay_id)
+                        }
+                        onValueChange={(value) =>
+                            form.setData(
+                                'barangay_id',
+                                value === 'none' ? null : Number(value),
+                            )
+                        }
+                    >
+                        <SelectTrigger
+                            id="barangay_id"
+                            aria-invalid={Boolean(form.errors.barangay_id)}
+                        >
+                            <SelectValue placeholder="Select a barangay" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            {barangays.map((barangay) => (
+                                <SelectItem
+                                    key={barangay.id}
+                                    value={String(barangay.id)}
+                                >
+                                    {barangay.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <InputError message={form.errors.barangay_id} />
                 </div>
                 <h3 className="mb-4 border-b border-line-soft pb-2 text-sm font-bold tracking-wider text-maroon uppercase">
                     Location & Settings

@@ -19,7 +19,8 @@ export default function MayorMessagesIndex({
         { label: 'Title', render: (message) => message.title },
         {
             label: 'Type',
-            render: (message) => message.type.replaceAll('_', ' '),
+            render: (message) =>
+                message.message_type?.name.replaceAll('_', ' ') ?? '-',
         },
         {
             label: 'Published At',

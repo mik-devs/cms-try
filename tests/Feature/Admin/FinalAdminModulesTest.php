@@ -2,7 +2,9 @@
 
 use App\Models\AnnualReport;
 use App\Models\Bid;
+use App\Models\Committee;
 use App\Models\MayorMessage;
+use App\Models\MessageType;
 use App\Models\Official;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
@@ -45,7 +47,7 @@ it('renders index create and edit pages for each final CMS module', function () 
     $mayorMessage = MayorMessage::query()->create([
         'title' => 'Welcome',
         'content' => 'A message to residents.',
-        'type' => 'speech',
+        'message_type_id' => MessageType::query()->where('name', 'speech')->value('id'),
         'published_at' => '2026-03-01 09:00:00',
     ]);
 
@@ -163,10 +165,13 @@ it('stores and cleans up uploaded files across all final CMS modules', function 
     Storage::disk('public')->assertMissing($reportPdf);
     $this->assertDatabaseMissing('annual_reports', ['id' => $annualReport->id]);
 
+    $financeCommittee = Committee::query()->create(['name' => 'Committee on Finance']);
+    $educationCommittee = Committee::query()->create(['name' => 'Committee on Education']);
+
     $this->post(route('admin.officials.store'), [
         'name' => 'Alex Santos',
         'position' => 'Mayor',
-        'committee' => 'Committee on Finance',
+        'committees' => [$financeCommittee->id],
         'photo' => UploadedFile::fake()->image('official.png'),
         'facebook_url' => 'https://facebook.com/alexsantos',
         'instagram_url' => 'https://instagram.com/alexsantos',
@@ -176,19 +181,19 @@ it('stores and cleans up uploaded files across all final CMS modules', function 
     $official = Official::query()->firstOrFail();
     expect($official->facebook_url)->toBe('https://facebook.com/alexsantos')
         ->and($official->instagram_url)->toBe('https://instagram.com/alexsantos')
-        ->and($official->committee)->toBe('Committee on Finance');
+        ->and($official->committees()->pluck('name')->all())->toBe(['Committee on Finance']);
     $originalPhoto = $official->photo;
     Storage::disk('public')->assertExists($originalPhoto);
     $this->put(route('admin.officials.update', $official), [
         'name' => 'Alex Santos',
         'position' => 'Municipal Mayor',
-        'committee' => 'Committee on Education',
+        'committees' => [$educationCommittee->id],
         'photo' => null,
         'order' => 1,
     ])->assertRedirect(route('admin.officials.index'));
     $official->refresh();
     expect($official->photo)->toBe($originalPhoto)
-        ->and($official->committee)->toBe('Committee on Education');
+        ->and($official->committees()->pluck('name')->all())->toBe(['Committee on Education']);
     $this->put(route('admin.officials.update', $official), [
         'name' => 'Alex Santos',
         'position' => 'Municipal Mayor',
@@ -207,7 +212,7 @@ it('stores and cleans up uploaded files across all final CMS modules', function 
     $this->post(route('admin.mayor-messages.store'), [
         'title' => 'Welcome',
         'content' => 'A message to residents.',
-        'type' => 'speech',
+        'message_type_id' => MessageType::query()->where('name', 'speech')->value('id'),
         'image' => UploadedFile::fake()->image('mayor.png'),
         'published_at' => '2026-03-01 09:00:00',
     ])->assertRedirect(route('admin.mayor-messages.index'));
@@ -218,7 +223,7 @@ it('stores and cleans up uploaded files across all final CMS modules', function 
     $this->put(route('admin.mayor-messages.update', $mayorMessage), [
         'title' => 'Updated Welcome',
         'content' => 'An updated message to residents.',
-        'type' => 'speech',
+        'message_type_id' => MessageType::query()->where('name', 'speech')->value('id'),
         'image' => null,
         'published_at' => '2026-03-01 09:00:00',
     ])->assertRedirect(route('admin.mayor-messages.index'));
@@ -227,7 +232,7 @@ it('stores and cleans up uploaded files across all final CMS modules', function 
     $this->put(route('admin.mayor-messages.update', $mayorMessage), [
         'title' => 'Updated Welcome',
         'content' => 'An updated message to residents.',
-        'type' => 'photo_release',
+        'message_type_id' => MessageType::query()->where('name', 'photo_release')->value('id'),
         'image' => UploadedFile::fake()->image('updated-mayor.png'),
         'published_at' => '2026-03-02 09:00:00',
     ])->assertRedirect(route('admin.mayor-messages.index'));
@@ -259,8 +264,8 @@ it('rejects invalid bid and mayor message types and requires annual report docum
     $this->post(route('admin.mayor-messages.store'), [
         'title' => 'Welcome',
         'content' => 'A message to residents.',
-        'type' => 'press-release',
-    ])->assertSessionHasErrors('type');
+        'message_type_id' => 999999,
+    ])->assertSessionHasErrors('message_type_id');
 
     $this->assertDatabaseCount('bids', 0);
     $this->assertDatabaseCount('annual_reports', 0);
@@ -298,14 +303,14 @@ it('shows officials and transparency files publicly and features the latest mayo
     MayorMessage::query()->create([
         'title' => 'Oldest',
         'content' => 'Earlier message.',
-        'type' => 'speech',
+        'message_type_id' => MessageType::query()->where('name', 'speech')->value('id'),
         'published_at' => '2026-01-01 09:00:00',
     ]);
     foreach (['Second', 'Third', 'Newest'] as $index => $title) {
         MayorMessage::query()->create([
             'title' => $title,
             'content' => 'A public message.',
-            'type' => 'speech',
+            'message_type_id' => MessageType::query()->where('name', 'speech')->value('id'),
             'published_at' => '2026-02-0'.($index + 1).' 09:00:00',
         ]);
     }
@@ -336,7 +341,7 @@ it('shows only the ten latest published mayor messages on the home page', functi
         MayorMessage::query()->create([
             'title' => "Message {$messageNumber}",
             'content' => 'A public message.',
-            'type' => 'speech',
+            'message_type_id' => MessageType::query()->where('name', 'speech')->value('id'),
             'published_at' => now()->subDays(12 - $messageNumber),
         ]);
     }
@@ -344,7 +349,7 @@ it('shows only the ten latest published mayor messages on the home page', functi
     MayorMessage::query()->create([
         'title' => 'Scheduled Message',
         'content' => 'This message is not public yet.',
-        'type' => 'speech',
+        'message_type_id' => MessageType::query()->where('name', 'speech')->value('id'),
         'published_at' => now()->addDay(),
     ]);
 
@@ -359,25 +364,25 @@ it('renders the public mayors corner page with published messages', function () 
     MayorMessage::query()->create([
         'title' => 'Oldest Photo',
         'content' => 'A public photo.',
-        'type' => 'photo_release',
+        'message_type_id' => MessageType::query()->where('name', 'photo_release')->value('id'),
         'published_at' => '2026-01-01 09:00:00',
     ]);
     MayorMessage::query()->create([
         'title' => 'Middle Speech',
         'content' => 'A public speech.',
-        'type' => 'speech',
+        'message_type_id' => MessageType::query()->where('name', 'speech')->value('id'),
         'published_at' => '2026-02-01 09:00:00',
     ]);
     MayorMessage::query()->create([
         'title' => 'Newest Achievement',
         'content' => 'A public achievement.',
-        'type' => 'achievement',
+        'message_type_id' => MessageType::query()->where('name', 'achievement')->value('id'),
         'published_at' => '2026-03-01 09:00:00',
     ]);
     MayorMessage::query()->create([
         'title' => 'Future Update',
         'content' => 'Not public yet.',
-        'type' => 'gallery',
+        'message_type_id' => MessageType::query()->where('name', 'gallery')->value('id'),
         'published_at' => now()->addDay(),
     ]);
 
@@ -399,7 +404,7 @@ it('publishes a mayor message created in the CMS to the home page', function () 
         'title' => 'Community Update',
         'content' => 'A message for residents.',
         'image' => UploadedFile::fake()->image('community.png'),
-        'type' => 'photo_release',
+        'message_type_id' => MessageType::query()->where('name', 'photo_release')->value('id'),
         'published_at' => now()->subMinute()->toDateTimeString(),
     ])->assertRedirect(route('admin.mayor-messages.index'));
 
@@ -411,6 +416,6 @@ it('publishes a mayor message created in the CMS to the home page', function () 
         ->assertInertia(fn (Assert $page) => $page
             ->component('public/home')
             ->where('mayorMessage.title', 'Community Update')
-            ->where('mayorMessage.type', 'photo_release')
+            ->where('mayorMessage.message_type.name', 'photo_release')
             ->where('mayorMessage.image_url', Storage::disk('public')->url($message->image)));
 });

@@ -1,9 +1,16 @@
 import { useState, type FormEvent } from 'react';
 import { useForm, type InertiaForm } from '@inertiajs/react';
-import type { MayorMessage } from '@/types';
+import type { MayorMessage, MessageType } from '@/types';
 import InputError from '@/components/input-error';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { FormWrapper } from '@/components/kiblawan/ui/form-wrapper';
 import { ImageUploader } from '@/components/kiblawan/ui/image-uploader';
 import { DatePicker } from '@/components/kiblawan/ui/date-picker';
@@ -13,12 +20,13 @@ export interface MayorMessageFormData {
     title: string;
     content: string;
     image: File | null;
-    type: MayorMessage['type'];
+    message_type_id: number | null;
     published_at: string;
 }
 
 interface MayorMessageFormProps {
     initialValues?: MayorMessage;
+    messageTypes?: MessageType[];
     onSubmit: (form: InertiaForm<MayorMessageFormData>) => void;
     submitLabel: string;
     title?: string;
@@ -27,6 +35,7 @@ interface MayorMessageFormProps {
 
 export default function MayorMessageForm({
     initialValues,
+    messageTypes = [],
     onSubmit,
     submitLabel,
     title = submitLabel,
@@ -36,7 +45,7 @@ export default function MayorMessageForm({
         title: initialValues?.title ?? '',
         content: initialValues?.content ?? '',
         image: null,
-        type: initialValues?.type ?? 'photo_release',
+        message_type_id: initialValues?.message_type_id ?? null,
         published_at: initialValues?.published_at?.slice(0, 10) ?? '',
     });
     const [imageCleared, setImageCleared] = useState(false);
@@ -90,37 +99,37 @@ export default function MayorMessageForm({
 
             <div className="space-y-6 bg-cream/50 p-6 rounded-[16px] border border-line-soft h-fit lg:col-span-1">
                 <div className="grid gap-2 sm:max-w-md">
-                    <Label htmlFor="type">
+                    <Label htmlFor="message_type_id">
                         Type <span className="text-red-500">*</span>
                     </Label>
-                    <select
-                        id="type"
-                        value={form.data.type}
-                        onChange={(event) => {
-                            const type = event.target.value;
-                            const types: MayorMessage['type'][] = [
-                                'photo_release',
-                                'speech',
-                                'achievement',
-                                'gallery',
-                            ];
-
-                            const selectedType = types.find(
-                                (candidate) => candidate === type,
-                            );
-
-                            if (selectedType) {
-                                form.setData('type', selectedType);
-                            }
-                        }}
-                        className="h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                    <Select
+                        value={
+                            form.data.message_type_id === null
+                                ? ''
+                                : String(form.data.message_type_id)
+                        }
+                        onValueChange={(value) =>
+                            form.setData('message_type_id', Number(value))
+                        }
                     >
-                        <option value="photo_release">Photo Release</option>
-                        <option value="speech">Speech</option>
-                        <option value="achievement">Achievement</option>
-                        <option value="gallery">Gallery</option>
-                    </select>
-                    <InputError message={form.errors.type} />
+                        <SelectTrigger
+                            id="message_type_id"
+                            aria-invalid={Boolean(form.errors.message_type_id)}
+                        >
+                            <SelectValue placeholder="Select a type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {messageTypes.map((messageType) => (
+                                <SelectItem
+                                    key={messageType.id}
+                                    value={String(messageType.id)}
+                                >
+                                    {messageType.name.replaceAll('_', ' ')}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <InputError message={form.errors.message_type_id} />
                 </div>
                 <ImageUploader
                     label="Image"

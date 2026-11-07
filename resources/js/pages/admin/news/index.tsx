@@ -55,7 +55,9 @@ export default function NewsIndex({ news }: { news: PaginatedNews }) {
                     {
                         label: 'Category',
                         render: (item) => (
-                            <span className="capitalize">{item.category}</span>
+                            <span className="capitalize">
+                                {item.news_category?.name ?? '-'}
+                            </span>
                         ),
                     },
                     {

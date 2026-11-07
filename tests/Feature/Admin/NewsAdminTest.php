@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\News;
+use App\Models\NewsCategory;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -23,7 +24,7 @@ it('renders the news management pages', function () {
         'title' => 'Admin news',
         'slug' => 'admin-news',
         'content' => 'News content',
-        'category' => 'news',
+        'news_category_id' => NewsCategory::query()->where('name', 'news')->value('id'),
         'status' => 'draft',
     ]);
 
@@ -55,7 +56,7 @@ it('creates, replaces, and deletes a news image with its record', function () {
         'title' => 'Community Update',
         'excerpt' => 'A short update',
         'content' => 'Full news content',
-        'category' => 'news',
+        'news_category_id' => NewsCategory::query()->where('name', 'news')->value('id'),
         'status' => 'draft',
         'published_at' => '2026-10-30',
         'is_featured' => true,
@@ -72,7 +73,7 @@ it('creates, replaces, and deletes a news image with its record', function () {
         'title' => 'Updated Community Update',
         'excerpt' => 'Updated excerpt',
         'content' => 'Updated content',
-        'category' => 'announcement',
+        'news_category_id' => NewsCategory::query()->where('name', 'announcement')->value('id'),
         'status' => 'published',
         'published_at' => '2026-11-01',
         'image' => UploadedFile::fake()->image('replacement.png'),
@@ -82,7 +83,7 @@ it('creates, replaces, and deletes a news image with its record', function () {
     Storage::disk('public')->assertMissing($originalImage);
     Storage::disk('public')->assertExists($news->image);
     expect($news->title)->toBe('Updated Community Update');
-    expect($news->category)->toBe('announcement');
+    expect($news->newsCategory?->name)->toBe('announcement');
     expect($news->is_featured)->toBeFalse();
 
     $replacementImage = $news->image;
@@ -98,11 +99,11 @@ it('rejects news with an unsupported category', function () {
         ->post(route('admin.news.store'), [
             'title' => 'Invalid news',
             'content' => 'News content',
-            'category' => 'unsupported',
+            'news_category_id' => 999999,
             'status' => 'draft',
         ])
         ->assertSessionHasErrors([
-            'category' => 'The selected category is invalid.',
+            'news_category_id' => 'The selected news category id is invalid.',
         ]);
 
     $this->assertDatabaseCount('news', 0);
@@ -113,7 +114,7 @@ it('rejects a featured value that is not boolean', function () {
         ->post(route('admin.news.store'), [
             'title' => 'Invalid featured value',
             'content' => 'News content',
-            'category' => 'news',
+            'news_category_id' => NewsCategory::query()->where('name', 'news')->value('id'),
             'status' => 'draft',
             'is_featured' => 'invalid',
         ])

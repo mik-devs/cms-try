@@ -30,12 +30,12 @@ const columns: ResourceTableColumn<JobPosting>[] = [
         render: (job) => (
             <Badge
                 className={
-                    job.status === 'open'
+                    job.status?.name === 'open'
                         ? 'border-transparent bg-green text-white'
                         : 'border-transparent bg-gold text-ink'
                 }
             >
-                {job.status}
+                {job.status?.name ?? '-'}
             </Badge>
         ),
     },

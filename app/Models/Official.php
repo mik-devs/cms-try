@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Facades\Storage;
 
 class Official extends Model
@@ -10,7 +11,6 @@ class Official extends Model
     protected $fillable = [
         'name',
         'position',
-        'committee',
         'photo',
         'facebook_url',
         'instagram_url',
@@ -39,5 +39,13 @@ class Official extends Model
         }
 
         return Storage::url($photo);
+    }
+
+    /**
+     * @return BelongsToMany<Committee, $this>
+     */
+    public function committees(): BelongsToMany
+    {
+        return $this->belongsToMany(Committee::class);
     }
 }

@@ -55,6 +55,30 @@ export interface Service {
     is_active: boolean;
 }
 
+// Mirrors App\Models\Committee
+export interface Committee {
+    id: number;
+    name: string;
+}
+
+// Mirrors App\Models\MessageType
+export interface MessageType {
+    id: number;
+    name: string;
+}
+
+// Mirrors App\Models\NewsCategory
+export interface NewsCategory {
+    id: number;
+    name: string;
+}
+
+// Mirrors App\Models\JobStatus
+export interface JobStatus {
+    id: number;
+    name: string;
+}
+
 // Mirrors App\Models\News
 export interface News {
     id: number;
@@ -64,7 +88,8 @@ export interface News {
     content: string;
     image: string | null;
     image_url: string | null;
-    category: 'news' | 'announcement';
+    news_category_id: number | null;
+    news_category?: NewsCategory | null;
     is_featured: boolean;
     status: 'draft' | 'published';
     published_at: string | null;
@@ -117,6 +142,8 @@ export interface TourismSpot {
     image: string;
     image_url: string;
     category: string | null;
+    barangay_id: number | null;
+    barangay?: Barangay | null;
     latitude: string | null;
     longitude: string | null;
     order: number;
@@ -131,7 +158,8 @@ export interface JobPosting {
     description: string;
     department: string;
     deadline: string | null;
-    status: 'open' | 'closed';
+    job_status_id: number | null;
+    status?: JobStatus | null;
     created_at: string;
     updated_at: string;
 }
@@ -195,7 +223,7 @@ export interface Official {
     id: number;
     name: string;
     position: string;
-    committee?: string | null;
+    committees?: Committee[];
     photo: string | null;
     photo_url: string | null;
     facebook_url: string | null;
@@ -210,7 +238,8 @@ export interface MayorMessage {
     content: string;
     image: string | null;
     image_url: string | null;
-    type: 'photo_release' | 'speech' | 'achievement' | 'gallery';
+    message_type_id: number | null;
+    message_type?: MessageType | null;
     published_at: string | null;
 }
 

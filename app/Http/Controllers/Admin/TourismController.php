@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreTourismRequest;
 use App\Http\Requests\Admin\UpdateTourismRequest;
+use App\Models\Barangay;
 use App\Models\TourismSpot;
 use App\Models\TourismSpotImage;
 use Illuminate\Http\RedirectResponse;
@@ -20,6 +21,7 @@ class TourismController extends Controller
     {
         return Inertia::render('admin/tourism/index', [
             'tourismSpots' => TourismSpot::query()
+                ->with('barangay')
                 ->orderBy('order')
                 ->orderBy('id')
                 ->paginate(10),
@@ -28,7 +30,9 @@ class TourismController extends Controller
 
     public function create(): Response
     {
-        return Inertia::render('admin/tourism/create');
+        return Inertia::render('admin/tourism/create', [
+            'barangays' => Barangay::query()->orderBy('name')->get(['id', 'name']),
+        ]);
     }
 
     public function store(StoreTourismRequest $request): RedirectResponse
@@ -52,10 +56,11 @@ class TourismController extends Controller
 
     public function edit(TourismSpot $tourism): Response
     {
-        $tourism->load('images');
+        $tourism->load('images', 'barangay');
 
         return Inertia::render('admin/tourism/edit', [
             'tourismSpot' => $tourism,
+            'barangays' => Barangay::query()->orderBy('name')->get(['id', 'name']),
         ]);
     }
 
