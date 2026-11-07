@@ -1,6 +1,7 @@
-FROM php:8.2-cli
+# Base image: PHP 8.5 CLI
+FROM php:8.5-cli
 
-# Install system dependencies
+# Install system dependencies (including supervisor and nginx)
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -10,13 +11,15 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nodejs \
-    npm
+    npm \
+    supervisor \
+    nginx
 
-# Clear cache
+# Clear apt cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
+# Install PHP extensions (sockets is required for Laravel Reverb)
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -24,18 +27,30 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /app
 
-# Copy existing application directory contents
+# Copy application files
 COPY . /app
 
-# Install dependencies and build assets
+# Install PHP and Node dependencies, build front-end assets
 RUN composer install --no-dev --optimize-autoloader
 RUN npm ci && npm run build
 
-# Set permissions
+# Set directory permissions for Laravel
 RUN chown -R www-data:www-data /app/storage /app/bootstrap/cache
 
-# Expose port (Railway will inject the PORT env variable)
-EXPOSE 8000
+# Copy Nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
-# Start Laravel
-CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+# Copy Supervisor configuration
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Copy Entrypoint script to dynamically inject Render's PORT into Nginx
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# Expose Render standard port
+EXPOSE 10000
+
+# Entrypoint updates Nginx with $PORT and passes control to Supervisor
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
