@@ -1,28 +1,25 @@
 # Base image: PHP 8.5 CLI
 FROM php:8.5-cli
 
-# 1. Install system dependencies (TINANGGAL natin ang nodejs at npm dito)
+# ✅ 1. I-INSTALL ANG MABILIS NA PHP EXTENSION INSTALLER
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions pdo_mysql mbstring exif pcntl bcmath gd sockets
+
+# 2. Install system dependencies (Nginx, Supervisor, etc.)
 RUN apt-get update && apt-get install -y \
     git \
     curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
     zip \
     unzip \
     supervisor \
     nginx
 
-# 2. Install modern Node.js (v22 LTS) via NodeSource
-# Ito ang magbibigay sa'yo ng bagong Node at npm na compatible sa Vite
+# 3. Install modern Node.js (v22 LTS) via NodeSource
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y nodejs
 
 # Clear apt cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions (sockets is required for Laravel Reverb)
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -36,7 +33,7 @@ COPY . /app
 # Install PHP and Node dependencies, build front-end assets
 RUN composer install --no-dev --optimize-autoloader
 
-# 3. I-install at i-build (Tinanggal natin yung 'npm install -g npm@latest' kasi bago na siya)
+# I-install at i-build ang frontend
 RUN npm install && npm run build
 
 # Set directory permissions for Laravel
