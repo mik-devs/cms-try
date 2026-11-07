@@ -26,14 +26,14 @@ class Office extends Model
     }
 
     /**
-     * @param Builder<static> $query
+     * @param  Builder<static>  $query
      * @return static
      */
     /**
- * @param \Illuminate\Database\Eloquent\Builder<static> $query
- * @return \Illuminate\Database\Eloquent\Builder<static>
- */
-public function scopeActive(Builder $query): Builder
+     * @param  Builder<static>  $query
+     * @return Builder<static>
+     */
+    public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
     }

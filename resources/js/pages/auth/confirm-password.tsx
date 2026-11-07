@@ -56,7 +56,6 @@ export default function ConfirmPassword() {
     );
 }
 
-// ITO ANG MAGPAPASA NG TITLE SA LAYOUT
 ConfirmPassword.layout = {
     title: 'Confirm Password',
     description: 'This is a secure area. Please confirm your password before continuing.',

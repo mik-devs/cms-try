@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Official;
 use App\Models\Setting;
 use App\Models\TourismSpot;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -195,8 +196,8 @@ LANGUAGE RULE:
                     'Authorization' => "Bearer {$apiKey}",
                 ])
                     ->timeout(60)
-                    ->retry(3, 2000, function (\Throwable $e): bool {
-                        if (! $e instanceof \Illuminate\Http\Client\RequestException) {
+                    ->retry(3, 2000, function (Throwable $e): bool {
+                        if (! $e instanceof RequestException) {
                             return true; // Retry on network errors
                         }
                         $response = $e->response->status();
@@ -233,7 +234,7 @@ LANGUAGE RULE:
                 Log::warning("Model {$model} failed with status {$response->status()}. Trying next...");
             }
 
-                        if ($response->failed()) {
+            if ($response->failed()) {
                 Log::error('All Groq models failed', [
                     'status' => $response->status(),
                     'body' => $response->body(),
@@ -265,7 +266,7 @@ LANGUAGE RULE:
                     'reply' => ['message' => $fallbackReply, 'actions' => []],
                 ], 500);
             }
-        } catch (\Illuminate\Http\Client\RequestException $e) {
+        } catch (RequestException $e) {
             $eMessage = $e->getMessage();
             if (is_string($apiKey) && $apiKey !== '') {
                 $eMessage = str_replace($apiKey, '[REDACTED]', $eMessage);
@@ -280,7 +281,7 @@ LANGUAGE RULE:
             return response()->json([
                 'reply' => ['message' => $fallbackReply, 'actions' => []],
             ], 500);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             // IDINAGDAG ITO PARA SA GENERAL ERRORS
             Log::error('Unexpected error in chatbot', [
                 'exception' => $e::class,

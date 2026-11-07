@@ -6,14 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreHeroSlideRequest;
 use App\Http\Requests\Admin\UpdateHeroSlideRequest;
 use App\Models\HeroSlide;
+use App\Traits\HandlesImageUploads;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
-use RuntimeException;
 
 class HeroSlideController extends Controller
 {
+    use HandlesImageUploads;
+
     public function index(): Response
     {
         return Inertia::render('admin/hero-slides/index', [
@@ -32,13 +33,8 @@ class HeroSlideController extends Controller
     public function store(StoreHeroSlideRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-        $imagePath = Storage::disk('public')->putFile('hero', $request->file('image'));
+        $validated['image'] = $this->storeOptimizedImage($request->file('image'), 'hero');
 
-        if ($imagePath === false) {
-            throw new RuntimeException('The hero slide image could not be stored.');
-        }
-
-        $validated['image'] = $imagePath;
         HeroSlide::query()->create($validated);
 
         return to_route('admin.hero-slides.index')->with('success', 'Hero slide created');
@@ -59,25 +55,15 @@ class HeroSlideController extends Controller
         $previousImage = $heroSlide->image;
 
         if ($request->hasFile('image')) {
-            $imagePath = Storage::disk('public')->putFile('hero', $request->file('image'));
-
-            if ($imagePath === false) {
-                throw new RuntimeException('The hero slide image could not be stored.');
-            }
-
-            $validated['image'] = $imagePath;
+            $validated['image'] = $this->storeOptimizedImage($request->file('image'), 'hero');
         } else {
             unset($validated['image']);
         }
 
         $heroSlide->update($validated);
 
-        if (
-            $request->hasFile('image')
-            && Storage::disk('public')->exists($previousImage)
-            && ! Storage::disk('public')->delete($previousImage)
-        ) {
-            throw new RuntimeException('The previous hero slide image could not be deleted.');
+        if ($request->hasFile('image')) {
+            $this->deleteImage($previousImage);
         }
 
         return to_route('admin.hero-slides.index')->with('success', 'Hero slide updated');
@@ -88,13 +74,7 @@ class HeroSlideController extends Controller
         $image = $heroSlide->image;
         $heroSlide->delete();
 
-        if (
-            $image
-            && Storage::disk('public')->exists($image)
-            && ! Storage::disk('public')->delete($image)
-        ) {
-            throw new RuntimeException('The hero slide image could not be deleted.');
-        }
+        $this->deleteImage($image);
 
         return to_route('admin.hero-slides.index')->with('success', 'Hero slide deleted');
     }

@@ -32,22 +32,24 @@ class ChatController extends Controller
         if ($request->filled('user_id')) {
             $activeUser = User::query()
                 ->whereKeyNot($currentUser->getKey())
-                ->findOrFail($request->integer('user_id'));
+                ->find($request->integer('user_id'));
 
-            $messages = Message::query()
-                ->with('sender:id,name')
-                ->where(function (Builder $query) use ($currentUser, $activeUser): void {
-                    $query->where(function (Builder $conversation) use ($currentUser, $activeUser): void {
-                        $conversation->where('sender_id', $currentUser->getKey())
-                            ->where('receiver_id', $activeUser->getKey());
-                    })->orWhere(function (Builder $conversation) use ($currentUser, $activeUser): void {
-                        $conversation->where('sender_id', $activeUser->getKey())
-                            ->where('receiver_id', $currentUser->getKey());
-                    });
-                })
-                ->orderBy('created_at')
-                ->orderBy('id')
-                ->get();
+            if ($activeUser) {
+                $messages = Message::query()
+                    ->with('sender:id,name')
+                    ->where(function (Builder $query) use ($currentUser, $activeUser): void {
+                        $query->where(function (Builder $conversation) use ($currentUser, $activeUser): void {
+                            $conversation->where('sender_id', $currentUser->getKey())
+                                ->where('receiver_id', $activeUser->getKey());
+                        })->orWhere(function (Builder $conversation) use ($currentUser, $activeUser): void {
+                            $conversation->where('sender_id', $activeUser->getKey())
+                                ->where('receiver_id', $currentUser->getKey());
+                        });
+                    })
+                    ->orderBy('created_at')
+                    ->orderBy('id')
+                    ->get();
+            }
         }
 
         return Inertia::render('admin/chat/index', [
@@ -83,7 +85,7 @@ class ChatController extends Controller
         $receiver->notify(new NewChatMessageNotification(
             $senderName,
             $messagePreview,
-            route('admin.chat.index', ['user_id' => $request->integer('receiver_id')])
+            route('admin.chat.index', ['user_id' => $request->user()->getKey()])
         ));
 
         MessageSent::dispatch($message->loadMissing('sender'));

@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\EmergencyContactController;
 use App\Http\Controllers\Admin\HeroSlideController;
 use App\Http\Controllers\Admin\JobController;
 use App\Http\Controllers\Admin\MayorMessageController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OfficeController;
 use App\Http\Controllers\Admin\OfficialController;
 use App\Http\Controllers\Admin\OfficialVideoController;
@@ -98,6 +99,11 @@ Route::prefix('admin')
     ->name('admin.')
     ->middleware(['auth', 'verified'])
     ->group(function () {
+        Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead'])
+            ->name('notifications.read-all');
+        Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead'])
+            ->name('notifications.read');
+
         Route::middleware('can:manage news')->group(function () {
             Route::resource('news', App\Http\Controllers\Admin\NewsController::class)
                 ->except('show');

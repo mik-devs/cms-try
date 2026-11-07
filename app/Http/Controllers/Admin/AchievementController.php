@@ -6,14 +6,15 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\StoreAchievementRequest;
 use App\Http\Requests\Admin\UpdateAchievementRequest;
 use App\Models\Achievement;
+use App\Traits\HandlesImageUploads;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
-use RuntimeException;
 
 class AchievementController extends Controller
 {
+    use HandlesImageUploads;
+
     public function index(): Response
     {
         return Inertia::render('admin/achievements/index', [
@@ -31,13 +32,7 @@ class AchievementController extends Controller
         $validated = $request->validated();
 
         if ($request->hasFile('image')) {
-            $imagePath = Storage::disk('public')->putFile('achievements', $request->file('image'));
-
-            if ($imagePath === false) {
-                throw new RuntimeException('The achievement image could not be stored.');
-            }
-
-            $validated['image'] = $imagePath;
+            $validated['image'] = $this->storeOptimizedImage($request->file('image'), 'achievements');
         }
 
         Achievement::query()->create($validated);
@@ -60,24 +55,13 @@ class AchievementController extends Controller
         $previousImage = $achievement->image;
 
         if ($request->hasFile('image')) {
-            $imagePath = Storage::disk('public')->putFile('achievements', $request->file('image'));
-
-            if ($imagePath === false) {
-                throw new RuntimeException('The achievement image could not be stored.');
-            }
-
-            $validated['image'] = $imagePath;
+            $validated['image'] = $this->storeOptimizedImage($request->file('image'), 'achievements');
         }
 
         $achievement->update($validated);
 
-        if (
-            $request->hasFile('image')
-            && $previousImage !== null
-            && Storage::disk('public')->exists($previousImage)
-            && ! Storage::disk('public')->delete($previousImage)
-        ) {
-            throw new RuntimeException('The previous achievement image could not be deleted.');
+        if ($request->hasFile('image')) {
+            $this->deleteImage($previousImage);
         }
 
         return to_route('admin.achievements.index')->with('success', 'Achievement updated');
@@ -88,13 +72,7 @@ class AchievementController extends Controller
         $image = $achievement->image;
         $achievement->delete();
 
-        if (
-            $image !== null
-            && Storage::disk('public')->exists($image)
-            && ! Storage::disk('public')->delete($image)
-        ) {
-            throw new RuntimeException('The achievement image could not be deleted.');
-        }
+        $this->deleteImage($image);
 
         return to_route('admin.achievements.index')->with('success', 'Achievement deleted');
     }

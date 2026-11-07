@@ -33,7 +33,7 @@ export default function SangguniangBayan({
                     </h2>
                     <article className="grid overflow-hidden rounded-[24px] border border-line bg-white shadow-k-card md:grid-cols-[minmax(16rem,0.8fr)_1.2fr]">
                         <img
-                            src={viceMayor?.photo_url || '/images/image.png'}
+                            src={viceMayor?.photo_url || '/images/image.webp'}
                             alt={viceMayor?.name ?? 'Vice Mayor'}
                             className="aspect-[4/3] w-full bg-cream object-contain object-top md:aspect-auto md:min-h-80"
                             loading="lazy"
@@ -96,7 +96,7 @@ export default function SangguniangBayan({
                                     className="overflow-hidden rounded-[20px] border border-line bg-white shadow-k-card"
                                 >
                                     <img
-                                        src={member.photo_url || '/images/image.png'}
+                                        src={member.photo_url || '/images/image.webp'}
                                         alt={member.name}
                                         className="aspect-[4/3] w-full bg-cream object-contain object-top"
                                         loading="lazy"

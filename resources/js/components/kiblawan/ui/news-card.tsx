@@ -11,7 +11,7 @@ export function NewsCard({ news }: { news: News }) {
         >
             <div className="overflow-hidden">
                 <img
-                    src={news.image_url || '/images/image.png'}
+                    src={news.image_url || '/images/image.webp'}
                     alt={news.title}
                     className="aspect-[4/3] w-full object-cover"
                     loading="lazy"

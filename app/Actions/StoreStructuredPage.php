@@ -8,10 +8,10 @@ use JsonException;
 
 class StoreStructuredPage
 {
-/**
- * @param array<string, mixed> $data
- */
-public function handle(string $slug, array $data): string
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    public function handle(string $slug, array $data): string
     {
         $directory = 'pages/'.$slug;
 
@@ -24,8 +24,9 @@ public function handle(string $slug, array $data): string
     }
 
     /**
+     * @param  array<string, mixed>  $data
+     *
      * @throws JsonException
-     * @param array<string, mixed> $data
      */
     private function handleDemographic(array $data, string $directory): string
     {
@@ -56,8 +57,9 @@ public function handle(string $slug, array $data): string
     }
 
     /**
+     * @param  array<string, mixed>  $data
+     *
      * @throws JsonException
-     * @param array<string, mixed> $data
      */
     private function handleSocioEconomic(array $data, string $directory): string
     {
@@ -92,8 +94,9 @@ public function handle(string $slug, array $data): string
     }
 
     /**
+     * @param  array<string, mixed>  $data
+     *
      * @throws JsonException
-     * @param array<string, mixed> $data
      */
     private function handleGeography(array $data, string $directory): string
     {
@@ -123,9 +126,9 @@ public function handle(string $slug, array $data): string
     }
 
     /**
-     * @param array<string, mixed> $data
-     * @param array<int, string> $existingKeys
-     * @param array<int, string> $uploadKeys
+     * @param  array<string, mixed>  $data
+     * @param  array<int, string>  $existingKeys
+     * @param  array<int, string>  $uploadKeys
      */
     private function resolveImage(array $data, string $directory, array $uploadKeys, array $existingKeys): string
     {

@@ -23,9 +23,14 @@ export default function AuthSimpleLayout({
                 <div className="mb-8 flex flex-col items-center text-center">
                     <Link href={home()} className="mb-2">
                         <img 
-                            src="/images/image.png" 
+                            src="/images/image.webp" 
                             alt="Kiblawan Seal" 
+                            width={96} 
+                            height={96} 
                             className="h-24 w-24 object-contain drop-shadow-md" 
+                            loading="eager"
+                            fetchPriority="high"
+                            decoding="async"
                         />
                     </Link>
                     <h1 className="font-display text-3xl font-bold text-primary">

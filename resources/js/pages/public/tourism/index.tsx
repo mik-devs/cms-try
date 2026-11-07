@@ -46,7 +46,7 @@ export default function TourismIndex({ spots }: { spots: TourismSpot[] }) {
                                 >
                                     <div className="relative aspect-[4/3] overflow-hidden">
                                         <img
-                                            src={spot.image_url || '/images/image.png'}
+                                            src={spot.image_url || '/images/image.webp'}
                                             alt={spot.name}
                                             className="h-full w-full object-cover transition-transform duration-500 ease-k-smooth group-hover:scale-105"
                                             loading="lazy"

@@ -159,15 +159,15 @@ return new class extends Migration
         Schema::dropIfExists('job_statuses');
     }
 
-        private function backfillLegacyValues(): void
+    private function backfillLegacyValues(): void
     {
         foreach ($this->lookups as $table => $names) {
             $foreignKey = match ($table) {
                 'message_types' => ['mayor_messages', 'message_type_id', 'type'],
                 'news_categories' => ['news', 'news_category_id', 'category'],
                 'job_statuses' => ['job_postings', 'job_status_id', 'status'],
-                
-                default => throw new \InvalidArgumentException("Unexpected lookup table: {$table}"),
+
+                default => throw new InvalidArgumentException("Unexpected lookup table: {$table}"),
             };
 
             [$targetTable, $foreignColumn, $legacyColumn] = $foreignKey;
@@ -184,7 +184,7 @@ return new class extends Migration
                     ->update([$foreignColumn => $lookupId]);
             }
         }
-    
+
         $legacyCommittees = DB::table('officials')
             ->whereNotNull('committee')
             ->where('committee', '!=', '')

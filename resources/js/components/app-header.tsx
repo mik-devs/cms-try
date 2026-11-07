@@ -1,4 +1,5 @@
 import { usePage, Link, router } from '@inertiajs/react';
+import axios from 'axios';
 import { useState, useEffect } from 'react'; 
 import { Bell, ChevronDown, LogOut, Settings } from 'lucide-react';
 import type { ReactNode } from 'react';
@@ -63,23 +64,23 @@ export function AppHeader({ breadcrumbs = [], leading }: Props) {
     }, [user?.id]);
 
     const markAsRead = (notificationId: string) => {
-        router.post(`/admin/notifications/${notificationId}/read`, {}, {
-            preserveScroll: true,
-            preserveState: true,
-        });
-        
+        axios.post(`/admin/notifications/${notificationId}/read`).catch(() => {});
         setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
         setUnreadCount((prev) => Math.max(prev - 1, 0));
     };
 
     const markAllAsRead = () => {
-        router.post('/admin/notifications/read-all', {}, {
-            preserveScroll: true,
-            preserveState: true,
-        });
-
+        axios.post('/admin/notifications/read-all').catch(() => {});
         setNotifications([]);
         setUnreadCount(0);
+    };
+
+    const handleNotificationClick = (notification: NotificationItem) => {
+        markAsRead(notification.id);
+
+        if (notification.url && notification.url !== '#') {
+            router.visit(notification.url);
+        }
     };
 
     return (
@@ -128,7 +129,7 @@ export function AppHeader({ breadcrumbs = [], leading }: Props) {
                         {notifications.length > 0 ? (
                             <div className="max-h-80 overflow-y-auto">
                                 {notifications.map((notification) => (
-                                    <DropdownMenuItem key={notification.id} className="flex cursor-pointer items-start gap-3 p-3" onClick={() => markAsRead(notification.id)}>
+                                    <DropdownMenuItem key={notification.id} className="flex cursor-pointer items-start gap-3 p-3 transition-colors hover:bg-cream/40" onClick={() => handleNotificationClick(notification)}>
                                         <div className="flex-shrink-0">
                                             <Avatar className="size-8 rounded-full border border-line">
                                                 <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">

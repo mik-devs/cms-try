@@ -13,7 +13,7 @@ export default function AchievementShow({
         <PublicLayout title={`${achievement.title} | Achievements`}>
             <section className="relative flex h-[420px] w-full items-end overflow-hidden bg-dark-brown md:h-[520px]">
                 <img
-                    src={achievement.image_url || '/images/image.png'}
+                    src={achievement.image_url || '/images/image.webp'}
                     alt={achievement.title}
                     className="absolute inset-0 h-full w-full object-contain"
                     loading="eager"

@@ -24,7 +24,7 @@ class TourismSpotImage extends Model
     }
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo<\App\Models\TourismSpot, $this>
+     * @return BelongsTo<TourismSpot, $this>
      */
     public function tourismSpot(): BelongsTo
     {

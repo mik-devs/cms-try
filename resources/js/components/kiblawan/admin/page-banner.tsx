@@ -25,9 +25,13 @@ export function PageBanner({
     return (
         <section className="relative min-h-[200px] shrink-0 overflow-hidden rounded-[24px] border-l-4 border-gold bg-primary p-8 text-white select-none md:min-h-[180px] md:px-12 md:py-10">
             <img
-                src="/images/image.png"
+                src="/images/image.webp"
                 alt=""
                 aria-hidden="true"
+                width={224}
+                height={224}
+                loading="lazy"
+                decoding="async"
                 className="pointer-events-none absolute -right-4 -bottom-8 w-40 opacity-10 md:w-56"
             />
             {children ? (

@@ -44,7 +44,7 @@ export default function ElectedOfficials({
                                 className="overflow-hidden rounded-[24px] border border-line bg-white shadow-k-card"
                             >
                                 <img
-                                    src={official?.photo_url || '/images/image.png'}
+                                    src={official?.photo_url || '/images/image.webp'}
                                     alt={official?.name ?? title}
                                     className="aspect-[16/10] w-full bg-cream object-contain object-top"
                                     loading="lazy"
@@ -119,7 +119,7 @@ export default function ElectedOfficials({
                                     className="overflow-hidden rounded-[20px] border border-line bg-white shadow-k-card"
                                 >
                                     <img
-                                        src={member.photo_url || '/images/image.png'}
+                                        src={member.photo_url || '/images/image.webp'}
                                         alt={member.name}
                                         className="aspect-[4/3] w-full bg-cream object-contain object-top"
                                         loading="lazy"

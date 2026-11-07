@@ -140,10 +140,13 @@ export default function Navbar({ isScrolled = false }: { isScrolled?: boolean })
                 <div className="mx-auto flex min-h-[86px] max-w-[1320px] items-center justify-between px-4">
                     <Link href="/" className="group flex items-center gap-3.5">
                         <img
-                            src="/images/image.png"
-                            alt="Kiblawan Logo"
+                            src="/images/image.webp"
+                            alt="Municipality of Kiblawan Logo"
+                            width={60}
+                            height={60}
                             className="size-[60px] shrink-0 object-contain drop-shadow-[0_2px_6px_rgba(0,0,0,0.12)]"
                             loading="eager"
+                            fetchPriority="high"
                             decoding="async"
                         />
                         <div className="leading-[1.1]">

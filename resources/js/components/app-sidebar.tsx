@@ -128,8 +128,10 @@ export function AppSidebar() {
                             {/* Logo span — closes BEFORE text span (siblings, not nested) */}
                             <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-cream ring-1 ring-line-soft group-data-[collapsible=icon]:size-7">
                                 <img
-                                    src="/images/image.png"
+                                    src="/images/image.webp"
                                     alt="Kiblawan logo"
+                                    width={40}
+                                    height={40}
                                     className="size-full object-contain p-0.5"
                                 />
                             </span>

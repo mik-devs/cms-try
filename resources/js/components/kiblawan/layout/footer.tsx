@@ -88,10 +88,12 @@ export default function Footer() {
                     <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1.5fr] lg:gap-12">
                         <div>
                             <img
-                                src="/images/image.png"
+                                src="/images/image.webp"
                                 alt="Kiblawan Seal"
+                                width={80}
+                                height={80}
                                 className="mb-5 size-20 object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]"
-                                loading="eager"
+                                loading="lazy"
                                 decoding="async"
                             />
                             <h3 className="mb-2 font-display text-[1.4rem] font-bold tracking-[0.5px] text-white">

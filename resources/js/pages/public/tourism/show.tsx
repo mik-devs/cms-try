@@ -17,7 +17,7 @@ export default function TourismShow({ spot }: { spot: TourismSpot }) {
         <PublicLayout title={`${spot.name} | Tourism`}>
             <section className="relative h-[400px] w-full overflow-hidden md:h-[500px]">
                 <img
-                    src={spot.image_url || '/images/image.png'}
+                    src={spot.image_url || '/images/image.webp'}
                     alt={spot.name}
                     className="absolute inset-0 h-full w-full object-cover"
                     loading="eager"
@@ -116,7 +116,7 @@ export default function TourismShow({ spot }: { spot: TourismSpot }) {
                                         className="group overflow-hidden rounded-[18px] border border-line-soft shadow-sm"
                                     >
                                         <img
-                                            src={image.image_url || '/images/image.png'}
+                                            src={image.image_url || '/images/image.webp'}
                                             alt={`${spot.name} photo`}
                                             className="aspect-[4/3] w-full object-cover transition-transform duration-500 ease-k-smooth group-hover:scale-105"
                                             loading="lazy"

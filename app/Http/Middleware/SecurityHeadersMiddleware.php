@@ -36,7 +36,7 @@ class SecurityHeadersMiddleware
             "script-src {$scriptSrc}",
             "style-src {$styleSrc}",
             "font-src {$fontSrc}",
-            "img-src 'self' data: https:",
+            "img-src 'self' data: https: blob:",
             "connect-src {$connectSrc}",
             "frame-src 'self' https://www.google.com https://maps.google.com https://embed.windy.com",
         ]);

@@ -41,9 +41,12 @@ export default function Login({ status }: Props) {
                 <div className="rounded-[24px] border border-line bg-white p-8 shadow-k-deep sm:p-10">
                     <div className="mb-8 text-center">
                         <img
-                            src="/images/image.png"
+                            src="/images/image.webp"
                             alt="Kiblawan Logo"
+                            width={80}
+                            height={80}
                             className="mx-auto mb-6 h-20 w-20"
+                            fetchPriority="high"
                         />
                         <h1 className="mb-2 font-display text-3xl font-bold text-primary">
                             Admin Portal

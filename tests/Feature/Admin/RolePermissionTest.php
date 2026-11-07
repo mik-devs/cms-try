@@ -12,13 +12,13 @@ it('seeds the configured roles, permissions, and department test users', functio
     $allPermissions = [
         'access internal chat',
         'manage achievements',
-        
+
         'manage emergency',
         'manage hero',
         'manage jobs',
         'manage news',
         'manage officials',
-        
+
         'manage services',
         'manage settings',
         'manage stats',

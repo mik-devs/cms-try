@@ -8,15 +8,16 @@ use App\Http\Requests\Admin\UpdateTourismRequest;
 use App\Models\Barangay;
 use App\Models\TourismSpot;
 use App\Models\TourismSpotImage;
+use App\Traits\HandlesImageUploads;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
-use RuntimeException;
 
 class TourismController extends Controller
 {
+    use HandlesImageUploads;
+
     public function index(): Response
     {
         return Inertia::render('admin/tourism/index', [
@@ -41,13 +42,7 @@ class TourismController extends Controller
         $galleryImages = $request->file('images', []);
         unset($validated['images']);
 
-        $imagePath = Storage::disk('public')->putFile('tourism', $request->file('image'));
-
-        if ($imagePath === false) {
-            throw new RuntimeException('The tourism spot image could not be stored.');
-        }
-
-        $validated['image'] = $imagePath;
+        $validated['image'] = $this->storeOptimizedImage($request->file('image'), 'tourism');
         $tourismSpot = TourismSpot::query()->create($validated);
         $this->storeGalleryImages($tourismSpot, $galleryImages);
 
@@ -76,13 +71,7 @@ class TourismController extends Controller
         $previousImage = $tourism->image;
 
         if ($request->hasFile('image')) {
-            $imagePath = Storage::disk('public')->putFile('tourism', $request->file('image'));
-
-            if ($imagePath === false) {
-                throw new RuntimeException('The tourism spot image could not be stored.');
-            }
-
-            $validated['image'] = $imagePath;
+            $validated['image'] = $this->storeOptimizedImage($request->file('image'), 'tourism');
         } else {
             unset($validated['image']);
         }
@@ -91,13 +80,8 @@ class TourismController extends Controller
         $this->deleteGalleryImages($tourism, $removeImageIds);
         $this->storeGalleryImages($tourism, $galleryImages);
 
-        if (
-            $request->hasFile('image')
-            && filled($previousImage)
-            && Storage::disk('public')->exists($previousImage)
-            && ! Storage::disk('public')->delete($previousImage)
-        ) {
-            throw new RuntimeException('The previous tourism spot image could not be deleted.');
+        if ($request->hasFile('image')) {
+            $this->deleteImage($previousImage);
         }
 
         return to_route('admin.tourism.index')->with('success', 'Tourism spot updated');
@@ -110,22 +94,10 @@ class TourismController extends Controller
         $tourism->delete();
 
         foreach ($galleryImages as $galleryImage) {
-            if (
-                filled($galleryImage->image_path)
-                && Storage::disk('public')->exists($galleryImage->image_path)
-                && ! Storage::disk('public')->delete($galleryImage->image_path)
-            ) {
-                throw new RuntimeException('A tourism gallery image could not be deleted.');
-            }
+            $this->deleteImage($galleryImage->image_path);
         }
 
-        if (
-            filled($image)
-            && Storage::disk('public')->exists($image)
-            && ! Storage::disk('public')->delete($image)
-        ) {
-            throw new RuntimeException('The tourism spot image could not be deleted.');
-        }
+        $this->deleteImage($image);
 
         return to_route('admin.tourism.index')->with('success', 'Tourism spot deleted');
     }
@@ -133,15 +105,7 @@ class TourismController extends Controller
     public function destroyImage(TourismSpotImage $image): RedirectResponse
     {
         $imagePath = $image->image_path;
-
-        if (
-            filled($imagePath)
-            && Storage::disk('public')->exists($imagePath)
-            && ! Storage::disk('public')->delete($imagePath)
-        ) {
-            throw new RuntimeException('The tourism gallery image could not be deleted.');
-        }
-
+        $this->deleteImage($imagePath);
         $image->delete();
 
         return back()->with('success', 'Gallery image deleted');
@@ -155,11 +119,7 @@ class TourismController extends Controller
         $order = (int) $tourismSpot->images()->max('order');
 
         foreach ($images as $image) {
-            $imagePath = Storage::disk('public')->putFile('tourism/gallery', $image);
-
-            if ($imagePath === false) {
-                throw new RuntimeException('A tourism gallery image could not be stored.');
-            }
+            $imagePath = $this->storeOptimizedImage($image, 'tourism/gallery');
 
             $tourismSpot->images()->create([
                 'image_path' => $imagePath,
@@ -180,14 +140,7 @@ class TourismController extends Controller
         $images = $tourismSpot->images()->whereKey($imageIds)->get();
 
         foreach ($images as $image) {
-            if (
-                filled($image->image_path)
-                && Storage::disk('public')->exists($image->image_path)
-                && ! Storage::disk('public')->delete($image->image_path)
-            ) {
-                throw new RuntimeException('A tourism gallery image could not be deleted.');
-            }
-
+            $this->deleteImage($image->image_path);
             $image->delete();
         }
     }

@@ -7,7 +7,7 @@ export function AchievementCard({ achievement }: { achievement: Achievement }) {
         <div className="group flex h-full flex-col overflow-hidden rounded-[20px] border border-line bg-white shadow-k-card transition-colors duration-300 ease-k-smooth hover:border-primary/30 hover:shadow-k-glow">
             <div className="relative aspect-[4/3] overflow-hidden bg-image-bed">
                 <img
-                    src={achievement.image_url || '/images/image.png'}
+                    src={achievement.image_url || '/images/image.webp'}
                     alt={achievement.title}
                     className="h-full w-full object-cover"
                     loading="lazy"

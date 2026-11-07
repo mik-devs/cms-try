@@ -70,12 +70,18 @@ class HandleInertiaRequests extends Middleware
                     ->latest()
                     ->take(5)
                     ->get() // <--- IDINAGDAG ANG get() PARA MAKUHA ANG COLLECTION
-                    ->map(function ($notification) {
+                    ->map(function ($notification) use ($user) {
+                        $url = $notification->data['url'] ?? '#';
+
+                        if (is_string($url) && str_contains($url, 'user_id='.$user->getKey())) {
+                            $url = route('admin.chat.index');
+                        }
+
                         return [
                             'id' => $notification->id,
                             'sender_name' => $notification->data['sender_name'] ?? 'System',
                             'message_preview' => $notification->data['message_preview'] ?? '',
-                            'url' => $notification->data['url'] ?? '#',
+                            'url' => $url,
                             'created_at' => $notification->created_at ? $notification->created_at->diffForHumans() : '',
                         ];
                     })->values()->toArray() : [],

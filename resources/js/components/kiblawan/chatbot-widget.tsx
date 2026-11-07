@@ -36,8 +36,10 @@ function BotAvatar({ className }: { className?: string }) {
             )}
         >
             <img
-                src="/images/image.png"
+                src="/images/image.webp"
                 alt=""
+                width={20}
+                height={20}
                 className="size-5 object-contain"
             />
         </span>
@@ -277,8 +279,10 @@ export function ChatbotWidget() {
                         <div className="relative">
                             <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-gold/70">
                                 <img
-                                    src="/images/image.png"
+                                    src="/images/image.webp"
                                     alt="Kiblawan Logo"
+                                    width={32}
+                                    height={32}
                                     className="size-8 object-contain"
                                 />
                             </span>

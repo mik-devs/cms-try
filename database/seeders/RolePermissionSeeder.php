@@ -26,8 +26,9 @@ class RolePermissionSeeder extends Seeder
             'manage achievements',
             'access internal chat',
         ])->map(function ($name) {
-            /** @var \Spatie\Permission\Models\Permission $permission */
-            $permission = \Spatie\Permission\Models\Permission::findOrCreate($name, 'web');
+            /** @var Permission $permission */
+            $permission = Permission::findOrCreate($name, 'web');
+
             return $permission;
         });
 

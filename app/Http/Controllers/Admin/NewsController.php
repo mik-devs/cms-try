@@ -8,14 +8,15 @@ use App\Http\Requests\Admin\StoreNewsRequest;
 use App\Http\Requests\Admin\UpdateNewsRequest;
 use App\Models\News;
 use App\Models\NewsCategory;
+use App\Traits\HandlesImageUploads;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
-use RuntimeException;
 
 class NewsController extends Controller
 {
+    use HandlesImageUploads;
+
     public function index(): Response
     {
         return Inertia::render('admin/news/index', [
@@ -35,13 +36,7 @@ class NewsController extends Controller
         $validated = $request->validated();
 
         if ($request->hasFile('image')) {
-            $imagePath = Storage::disk('public')->putFile('news', $request->file('image'));
-
-            if ($imagePath === false) {
-                throw new RuntimeException('The news image could not be stored.');
-            }
-
-            $validated['image'] = $imagePath;
+            $validated['image'] = $this->storeOptimizedImage($request->file('image'), 'news');
         }
 
         $validated['user_id'] = auth()->id();
@@ -69,26 +64,15 @@ class NewsController extends Controller
         $previousImage = $news->image;
 
         if ($request->hasFile('image')) {
-            $imagePath = Storage::disk('public')->putFile('news', $request->file('image'));
-
-            if ($imagePath === false) {
-                throw new RuntimeException('The news image could not be stored.');
-            }
-
-            $validated['image'] = $imagePath;
+            $validated['image'] = $this->storeOptimizedImage($request->file('image'), 'news');
         }
 
         $validated['content'] = (new SanitizeHtmlAction)->handle($validated['content'] ?? '');
 
         $news->update($validated);
 
-        if (
-            $request->hasFile('image')
-            && $previousImage !== null
-            && Storage::disk('public')->exists($previousImage)
-            && ! Storage::disk('public')->delete($previousImage)
-        ) {
-            throw new RuntimeException('The previous news image could not be deleted.');
+        if ($request->hasFile('image')) {
+            $this->deleteImage($previousImage);
         }
 
         return to_route('admin.news.index')->with('success', 'News updated');
@@ -99,13 +83,7 @@ class NewsController extends Controller
         $image = $news->image;
         $news->delete();
 
-        if (
-            $image !== null
-            && Storage::disk('public')->exists($image)
-            && ! Storage::disk('public')->delete($image)
-        ) {
-            throw new RuntimeException('The news image could not be deleted.');
-        }
+        $this->deleteImage($image);
 
         return to_route('admin.news.index')->with('success', 'News deleted');
     }
